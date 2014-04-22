@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
@@ -84,11 +85,26 @@ public class ContextRec {
         popupMenu.add(jLab, BorderLayout.CENTER);
         popupMenu.addSeparator();
         popupMenu.add(new JLabel("Search Results"));
-        JTextField jt=new JTextField(query);
+        final JTextField jt=new JTextField();
+        jt.setToolTipText(query);
         JButton jb=new JButton("Quick Search");
+        JSplitPane jsp=new JSplitPane();
+        
+        
         popupMenu.addSeparator();
         popupMenu.add(jt);
+        popupMenu.add(jb);
+        
+        jb.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				query=jt.getText();
+			}
+		});
         try {
+        	thid:
 			gs=new GoogleSearch(query);
 			JMenuItem links[] = new JMenuItem[gs.total];
 			System.out.println("TOTAL SEARCH RESULTS"+gs.total);

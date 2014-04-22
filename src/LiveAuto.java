@@ -130,6 +130,7 @@ public class LiveAuto extends JFrame {
 			}
 		});
 		cut.setText(null);
+		cut.setToolTipText("Cut");
 		cut.setIcon(new ImageIcon("cut.gif"));
 		cop.setText(null);
 		cop.setIcon(new ImageIcon("copy.gif"));
@@ -472,7 +473,8 @@ public class LiveAuto extends JFrame {
 			return caretAddidtion;
 		}
 		public void keyPressed(KeyEvent e) {
-			changed = true;
+			
+			changed = true;		//variable to enable save
 			Save.setEnabled(true);
 			SaveAs.setEnabled(true);
 			//System.out.println("typed text in pres="+area.getText()+"|");	
