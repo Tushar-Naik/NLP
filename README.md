@@ -8,3 +8,5 @@ A text editor using java that implements,
 (2) a Context Recognizer using probabilistic tagging,
 (3) an Auto Complete feature using a hash map, and 
 (4) a Regex Find option.
+
+LiveAuto.java is where you have to begin
