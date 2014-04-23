@@ -47,6 +47,8 @@ public class LiveAuto extends JFrame {
 	// button variables
 	boolean spellCheckOn;
 	boolean autoCompleteOn;
+	String beforeWordText="";
+	String afterWordText="";
 	private boolean changed = false; // to differentiate between save and saveAs
 	char prevChar;
 
@@ -173,9 +175,68 @@ public class LiveAuto extends JFrame {
 		frame.add(scroll, BorderLayout.CENTER);
 		area.requestFocus();
 		CR = new ContextRec(area);
+		
 		area.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseReleased(MouseEvent arg0) {
+			public void mouseReleased(MouseEvent e) {
+				if(SwingUtilities.isRightMouseButton(e))
+				{
+					//get the caret position of the right click
+					JEditorPane editor = (JEditorPane) e.getSource();
+				    Point pt = new Point(e.getX(), e.getY());
+				    int pos = editor.viewToModel(pt);
+				    
+					String typedText=area.getText();
+					String word="";
+					//extract the word at the caret position
+					if(!separator.contains(typedText.charAt(pos)))  // check if a word exists in that position
+					{
+						int i=pos;
+						while(i<typedText.length()&&!separator.contains(typedText.charAt(i)))
+							word=word+typedText.charAt(i++);
+						afterWordText=typedText.substring(i);
+						System.out.println("after word= "+afterWordText);
+						i=pos-1;
+						while(i>=0&&!separator.contains(typedText.charAt(i)))
+							 word=typedText.charAt(i--)+word;
+						beforeWordText=typedText.substring(0,i+1);
+						System.out.println("before word= "+beforeWordText);
+						System.out.println("WORD on right click: "+word);
+					}
+					// if the word is error free, "nothing doing" else, show candidates
+					if(!obj.nWords.containsKey(word))
+					{
+						String correctWord=obj.correct(word);
+						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
+
+							ArrayList<String> cand = new ArrayList<String>(
+									obj.candidates.values());
+							String allCandidates[] = new String[cand.size()];
+							allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
+							candidateList.setListData(allCandidates);
+							jlsc.setViewportView(candidateList);
+							jlsc.setVisible(true);
+							// Add listener to JList
+							candidateList.addListSelectionListener(new ListSelectionListener() {
+
+										@Override
+										public void valueChanged(ListSelectionEvent arg0) {
+											// change the previous word
+											if (candidateList.getSelectedValue() != null) {
+												
+												String wordSelected = candidateList.getSelectedValue();
+												System.out.println("you selected: "+ wordSelected);
+												area.setText(beforeWordText + wordSelected	+ afterWordText);
+												area.requestFocus();
+												indicateErrors();
+											}
+										}
+									});
+						}
+					}
+					
+			     }
+				
 			}
 
 			@Override
@@ -453,6 +514,8 @@ public class LiveAuto extends JFrame {
 		});
 	}
 
+	//------------------------- Key Listeners for all the editor features -----------------------
+	
 	private KeyListener k1 = new KeyAdapter() {
 
 		@Override
@@ -512,7 +575,7 @@ public class LiveAuto extends JFrame {
 			}
 			return caretAddidtion;
 		}
-
+ 
 		public void keyPressed(KeyEvent e) {
 			
 			changed = true;		//variable to enable save
@@ -520,8 +583,7 @@ public class LiveAuto extends JFrame {
 			SaveAs.setEnabled(true);
 			// System.out.println("typed text in pres="+area.getText()+"|");
 
-			// ------------------------------- LIVE SPELL CHECKER CORRECTER
-			// ------------------------------------
+			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
 			if (spellCheckOn && !suggestion) {
 
 				if (separator.contains(e.getKeyChar()))// e.getKeyChar() == ' '
@@ -552,9 +614,7 @@ public class LiveAuto extends JFrame {
 					if (word.length() > 1) {
 						correctedWord = obj.correct(word);
 						try {
-							area.getDocument().remove(
-									area.getCaretPosition() - (word.length()),
-									(word.length()));
+							area.getDocument().remove(area.getCaretPosition() - (word.length()),(word.length()));
 							area.getDocument().insertString(
 									area.getCaretPosition(), correctedWord,
 									null);
@@ -563,34 +623,22 @@ public class LiveAuto extends JFrame {
 							e1.printStackTrace();
 						}
 						// area.setText(remText + correctedWord );
-						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept
-																					// to
-																					// show
-																					// candidate
-																					// words
-																					// as
-																					// list
+						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
 
 							ArrayList<String> cand = new ArrayList<String>(
 									obj.candidates.values());
 							String allCandidates[] = new String[cand.size()];
-							allCandidates = cand.toArray(allCandidates); // convert
-																			// ArrayLIst
-																			// to
-																			// String[]
+							allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
 							candidateList.setListData(allCandidates);
 							jlsc.setViewportView(candidateList);
 							jlsc.setVisible(true);
 							// Add listener to JList
-							candidateList
-									.addListSelectionListener(new ListSelectionListener() {
+							candidateList.addListSelectionListener(new ListSelectionListener() {
 
 										@Override
-										public void valueChanged(
-												ListSelectionEvent arg0) {
+										public void valueChanged(ListSelectionEvent arg0) {
 											// change the previous word
-											if (candidateList
-													.getSelectedValue() != null) {
+											if (candidateList.getSelectedValue() != null) {
 												String typedText;
 												String word, remText;
 												int i = 0;
@@ -598,7 +646,6 @@ public class LiveAuto extends JFrame {
 												remText = "";
 												typedText = area.getText(); // http://docs.oracle.com/javase/tutorial/uiswing/components/editorpane.html
 												i = typedText.length() - 2;
-
 												while (i >= 0
 														&& typedText.charAt(i) != ' '
 														&& typedText.charAt(i) != '.'
@@ -606,14 +653,9 @@ public class LiveAuto extends JFrame {
 													word = typedText
 															.charAt(i--) + word;
 												while (i >= 0)
-													remText = typedText
-															.charAt(i--)
-															+ remText;
-												word = candidateList
-														.getSelectedValue();
-												System.out
-														.println("you selected: "
-																+ word);
+													remText = typedText.charAt(i--)+ remText;
+												word = candidateList.getSelectedValue();
+												System.out.println("you selected: "+ word);
 												area.setText(remText + word
 														+ " ");
 												area.requestFocus();
@@ -625,8 +667,7 @@ public class LiveAuto extends JFrame {
 				} else
 					jlsc.setVisible(false);
 			}
-			// -------------------- Add Words for Autocomplete
-			// ------------------------------------------
+			// -------------------- Add Words for Autocomplete------------------------------------------
 
 			if (separator.contains(e.getKeyChar()))// e.getKeyChar() == ' ' ||
 													// e.getKeyChar() == '.' ||
@@ -690,13 +731,10 @@ public class LiveAuto extends JFrame {
 
 							// Highlight from indexOfWord to
 							// indexOfWord+word.length
-							Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(
-									Color.red);
+							Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(Color.red);
 							Highlighter highlighter = area.getHighlighter();
 							try {
-								highlighter.addHighlight(i - caretAddidtion
-										- word.length(), i - caretAddidtion,
-										painter);
+								highlighter.addHighlight(i-caretAddidtion-word.length(), i-caretAddidtion,painter);
 							} catch (BadLocationException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();

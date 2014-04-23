@@ -1,0 +1,5 @@
+A text editor using java that implements, 
+(1) a live Contextual Spell Checker-Corrector using that Bayesian Model, n-grams and the Noisy Channel Model, 
+(2) a Context Recognizer to detect the theme, using probabilistic tagging, 
+(3) an Auto Complete feature, and 
+(4) a Regex Find option. 

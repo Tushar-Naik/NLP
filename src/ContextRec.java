@@ -104,7 +104,7 @@ public class ContextRec {
 			}
 		});
         try {
-        	thid:
+        	
 			gs=new GoogleSearch(query);
 			JMenuItem links[] = new JMenuItem[gs.total];
 			System.out.println("TOTAL SEARCH RESULTS"+gs.total);
