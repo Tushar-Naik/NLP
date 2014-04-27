@@ -28,6 +28,8 @@ import javax.swing.text.BadLocationException;
 public class LiveAuto extends JFrame {
 
 	/**
+	 * @author Tushar Naik, Vamanan T S, Suhas V
+	 * 
 	 * A text editor using java that implements, (1) a live contextual Spell
 	 * Checker-Corrector using that Bayesian model, n-grams and the noisy
 	 * channel model, (2) a Context Recognizer using probabilistic tagging, (3)
@@ -52,14 +54,12 @@ public class LiveAuto extends JFrame {
 
 	ArrayList<Character> separator = null; // for listening to every word
 	char separatorUsed; // to print back the separator after correction
-	boolean suggestion = false; // variable to make sure that the autocomplete suggestion popup vanishes wen not used by user
-	boolean wordBeingTyped= false; // variable to make sure that the candidatesuggestion popup vanishes wen not being used..
+	boolean acsuggestion = false; // variable to make sure that the autocomplete suggestion popup vanishes wen not used by user
+	//boolean wordBeingTyped= false; // variable to make sure that the candidatesuggestion popup vanishes wen not being used..
+	boolean spellSuggestion = false;
 	ArrayList<String> Completable = null; // list of all words, that have been
 											// typed by user, of length >7
-	final JList<String> candidateList = new JList<String>(); // list of all
-																// words, that
-																// can fix the
-																// wrong one.
+	final JList<String> candidateList = new JList<String>(); // list of all words, that can fix the wrong one.
 	/* Create all objects to save time */
 	NewSpellChecker obj;
 	ContextRec CR;
@@ -171,7 +171,7 @@ public class LiveAuto extends JFrame {
 		frame.add(scroll, BorderLayout.CENTER);
 		area.requestFocus();
 		CR = new ContextRec(area);
-		
+		// option of right click on the misspelt word
 		area.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -232,12 +232,19 @@ public class LiveAuto extends JFrame {
 												area.setText(beforeWordText + wordSelected	+ afterWordText);
 												area.requestFocus();
 												indicateErrors();
-												wordBeingTyped=true;
 												hidePopup();
+												System.out.println("Hide called:"+236);
 											}
 										}
 									});
+							spellSuggestion=true;
 							SuggestionPanels(area, pos, word, location, 1, candidateList);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									textarea.requestFocusInWindow();
+								}
+							});
 						}
 						else
 							SuggestionPanels(area, pos, "", location, 1, null);
@@ -371,32 +378,54 @@ public class LiveAuto extends JFrame {
 	 * popupMenu=null; }
 	 */
 
+	public void hidePopup() {
+		if (popupMenu != null && acsuggestion == true)
+		{	acsuggestion = false;
+			popupMenu.setVisible(false);
+		}
+		if (popupMenu != null && spellSuggestion == true)
+		{	spellSuggestion=false;
+			popupMenu.setVisible(false);
+		}
+		
+	}
+	
 	//show popup, if spell=0, for autocomplete, if spell=1, for spelling error candidates
 	public void SuggestionPanels(JTextPane textarea, int position,
 			String subWord, Point location, int spell, JList list2) {
 		this.insertionPosition = position;
 		this.subWord = subWord;
+		this.list=list2;
 		popupMenu = new JPopupMenu();
 		popupMenu.removeAll();
-		popupMenu.setOpaque(false);
+		popupMenu.setOpaque(true);
 		popupMenu.setBorder(null);
-		if(spell==0)
+		if(spell==0)		// auto complete suggestions to be shown
 		{	if (createCompletableList(position, subWord)) {
-			popupMenu.add(list, BorderLayout.CENTER);
+			JScrollPane jsp=new JScrollPane(list);
+			jsp.setSize(100,200);
+			popupMenu.add(jsp, BorderLayout.CENTER);
 			popupMenu.show(textarea, location.x, textarea.getBaseline(0, 0)
 					+ location.y + 20);
 			}
 		}
+		
 		else 
 		{
-			if(list2 !=null)
+			if(list2 !=null)		// spell error candidates to be shown
 			{
-				popupMenu.add(list2, BorderLayout.CENTER);
+				
+				spellSuggestion=true;
+				createSuggestionList(list2);
+				JScrollPane jsp=new JScrollPane(list);
+				jsp.setSize(100,200);
+				popupMenu.add(jsp, BorderLayout.CENTER);
 				popupMenu.show(textarea, location.x-subWord.length(), textarea.getBaseline(0, 0)
 						+ location.y + 20);
 			}
 			else
 			{
+				spellSuggestion=true;
 				popupMenu.add(new JLabel("No suggestions"));
 				popupMenu.show(textarea, location.x, textarea.getBaseline(0, 0)
 						+ location.y + 20);
@@ -406,20 +435,11 @@ public class LiveAuto extends JFrame {
 		// printval();
 	}
 
-	public void hidePopup() {
-		if (popupMenu != null && (suggestion == true || wordBeingTyped == true))
-		{	suggestion = false;
-			wordBeingTyped=false;
-			popupMenu.setVisible(false);
-		}
-		
-	}
-
 	// ------------------------------ Actual Logic of Autocomplete -------------------------------
 
 	public boolean createCompletableList(final int position,
 			final String subword) {
-		suggestion=true;
+		acsuggestion=true;
 		ArrayList<String> data = new ArrayList<String>();
 		for (int i = 0; i < Completable.size(); i++) {
 			if (Completable.get(i).startsWith(subWord)
@@ -429,20 +449,20 @@ public class LiveAuto extends JFrame {
 		}
 		// System.out.println("IN CREATLIST=="+subWord+Completable+data+data.size());
 		if (data.size() == 0) {
-
-			suggestion = false;
 			hidePopup();
+			System.out.println("Hide called:"+453);
 			return false;
 		}
-		createSuggestionList(data);
+		JList jl = new JList(data.toArray());
+		this.list=jl;
+		createSuggestionList(jl);
 		return true;
 	}
 
-	public void createSuggestionList(ArrayList<String> data) {
+	public void createSuggestionList(JList jl) {
 
-		suggestion = true;
-		list = new JList(data.toArray());
-		// list.setListData(data);
+		list=jl;
+		System.out.println("LIST:"+list);
 		list.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
@@ -451,8 +471,10 @@ public class LiveAuto extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 1) {
 					insertSelection();
-					suggestion=true;
+					acsuggestion=true;
+					spellSuggestion=true;
 					hidePopup();
+					System.out.println("Hide called:"+477);
 				}
 			}
 		});
@@ -460,17 +482,17 @@ public class LiveAuto extends JFrame {
 
 	public boolean insertSelection() {
 		if (list.getSelectedValue() != null) {
-			try {
-				final String selectedSuggestion = ((String) list
-						.getSelectedValue()).substring(subWord.length()); // add  only the remaining part of the word to text area.
-				textarea.getDocument().insertString(insertionPosition,
-						selectedSuggestion + " ", null);
-				return true;
-			} catch (BadLocationException e1) {
-				e1.printStackTrace();
-			}
-			suggestion=true;
+			
+				final String selectedSuggestion = ((String) list.getSelectedValue()); // add  only the remaining part of the word to text area.
+				int bp=textarea.getCaretPosition()-1;
+				String TT=textarea.getText();
+				while(bp>=0 && !separator.contains(TT.charAt(bp))) bp--;
+				String prevText=TT.substring(0,bp+1);
+				textarea.setText(prevText+selectedSuggestion+separatorUsed);
+			acsuggestion=true;
+			spellSuggestion=true;
 			hidePopup();
+			System.out.println("Hide called:"+495);
 		}
 		return false;
 	}
@@ -486,6 +508,7 @@ public class LiveAuto extends JFrame {
 	}
 
 	public void moveDown() {
+		System.out.println("LIST=="+list);
 		if (list == null)
 			System.out.println("LIST IS NULL");
 		else {
@@ -503,30 +526,31 @@ public class LiveAuto extends JFrame {
 	}
 
 	public void showSuggestion() {
-		suggestion=true;
 		hidePopup();
+		System.out.println("Hide called:"+530);
 		final int position = textarea.getCaretPosition();
 		int caret = position - 1;
-		Point location; // location is collected to display the popup at that
-						// location
+		Point location; // location is collected to display the popup at that location
 		try {
 			location = textarea.modelToView(position).getLocation();
 		} catch (BadLocationException e2) {
 			e2.printStackTrace();
 			return;
 		}
+		acsuggestion=true;
 		String typed = textarea.getText();
 		String lastWord = "";
-		while (caret >= 0 && typed.charAt(caret) != ' ') {
+		while (caret >= 0 && typed.charAt(caret) != ' ') 
+		{
 			lastWord = typed.charAt(caret) + lastWord;
 			caret--;
 		}
 		if (caret >= position)
 			return;
-		final String subWord = lastWord;
+		final String subWord = lastWord;	
 		if (subWord.length() < 3) {
 			return;
-		}
+			}
 		SuggestionPanels(textarea, position, subWord, location,0,null);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -541,8 +565,9 @@ public class LiveAuto extends JFrame {
 	private KeyListener k1 = new KeyAdapter() {
 
 		@Override
-		public void keyTyped(KeyEvent e) {
-			if (e.getKeyChar() == KeyEvent.VK_ENTER && suggestion) {
+		public void keyTyped(KeyEvent e) { 	//  executed 2nd
+			System.out.println("in keyTyped="+area.getText()+"|");
+			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)) {
 				if (insertSelection()) {
 					e.consume();
 					final int position = textarea.getCaretPosition();
@@ -560,19 +585,23 @@ public class LiveAuto extends JFrame {
 			}
 		}
 
-		public void keyReleased(KeyEvent e) {
-			// System.out.println("typed test in rell="+area.getText()+"|");
-			if (autoCompleteOn) {
-				if (e.getKeyCode() == KeyEvent.VK_DOWN && suggestion) {
+		public void keyReleased(KeyEvent e) { 	//  executed 3rd
+			System.out.println("in keyRel="+area.getText()+"|"+" spellsugges="+spellSuggestion);
+			if (e.getKeyCode() == KeyEvent.VK_DOWN && (acsuggestion||spellSuggestion)) {
 					moveDown();
-				} else if (e.getKeyCode() == KeyEvent.VK_UP && suggestion) {
+					System.out.println("LIST:"+list);
+				} else if (e.getKeyCode() == KeyEvent.VK_UP && (acsuggestion||spellSuggestion)) {
 					moveUp();
 				} else if (Character.isWhitespace(e.getKeyChar())) {
-					hidePopup();
-				} else if (Completable != null && Completable.size() > 0) {
+					if(acsuggestion)
+					{	hidePopup();
+					System.out.println("Hide called:"+598);
+					}
+				} 
+				else if (Completable != null && Completable.size() > 0) {
 					showSuggestion();
 				}
-			}
+			
 			if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
 				area.setCaretPosition(area.getText().length()
 						- getCaretAddidtion() - 1);
@@ -587,9 +616,7 @@ public class LiveAuto extends JFrame {
 		private int getCaretAddidtion() {
 			// TODO Auto-generated method stub
 			String textTyped = area.getText().toLowerCase();
-			int caretAddidtion = 0, i; // to equate caret position and
-										// area.getText().length() (new line
-										// takes 2 caret positions)
+			int caretAddidtion = 0, i; // to equate caret position and area.getText().length() (new line takes 2 caret positions)
 			for (i = 0; i < textTyped.length(); i++) {
 				char c = textTyped.charAt(i);
 				if (c == '\n')
@@ -598,31 +625,34 @@ public class LiveAuto extends JFrame {
 			return caretAddidtion;
 		}
  
-		public void keyPressed(KeyEvent e) {
+		public void keyPressed(KeyEvent e) {	//  executed 1st
 			
 			changed = true;		//variable to enable save
 			Save.setEnabled(true);
 			SaveAs.setEnabled(true);
-			// System.out.println("typed text in pres="+area.getText()+"|");
+			System.out.println("in keyPress="+area.getText()+"|");
 
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
-			if (spellCheckOn && !suggestion) {
+			if (spellCheckOn && !acsuggestion) 
+				{
 
 				if (separator.contains(e.getKeyChar()))
 				{
-					wordBeingTyped=false;
+					System.out.println("Entered spellcking mechanism");
+					//wordBeingTyped=false;
 					separatorUsed = e.getKeyChar();
+					System.out.println("Entered spellcking mechanism: sep="+separatorUsed+"|");
 					String typedText;
 					String word, correctedWord;
 					int i = 0;
 					word = "";
 					typedText = area.getText(); // http://docs.oracle.com/javase/tutorial/uiswing/components/editorpane.html
-					i = typedText.length() - 1;
+					i = typedText.length() - 1;		// ERRORMARK : for \t or \n. use ( till it reaches an alphabet, i--)
 					while (i >= 0 && !separator.contains(typedText.charAt(i)))
 						// && typedText.charAt(i) != ' '&& typedText.charAt(i)
 						// != '.'&& typedText.charAt(i) != '\n')
 						word = typedText.charAt(i--) + word;
-					
+					System.out.println("word="+word);
 					if (word.length() > 1) {
 						correctedWord = obj.correct(word);
 						try {
@@ -648,9 +678,11 @@ public class LiveAuto extends JFrame {
 							ArrayList<String> cand = new ArrayList<String>(
 									obj.candidates.values());
 							String allCandidates[] = new String[cand.size()];
+							System.out.println("candidates:"+cand);
 							allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
 							candidateList.setListData(allCandidates);
-							// Add listener to JList
+							
+							/*// Add listener to JList
 							candidateList.addListSelectionListener(new ListSelectionListener() {
 
 										@Override
@@ -674,20 +706,28 @@ public class LiveAuto extends JFrame {
 												System.out.println("you selected: "+ word);
 												area.setText(remText + word+ " ");
 												area.requestFocus();
-												wordBeingTyped=true;
+												//wordBeingTyped=true;
 												hidePopup();
 												indicateErrors();
 											}
 										}
 									});
+								*/
 							SuggestionPanels(area, pos, word, location, 1, candidateList);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									textarea.requestFocusInWindow();
+								}
+							});
 						}
 					}
 				} 
-				else
+				else if(Character.isAlphabetic(e.getKeyChar()))
 				{
-					wordBeingTyped=true;
+					//wordBeingTyped=true;
 					hidePopup();
+					System.out.println("Hide called:"+730);
 				}
 			}
 			// -------------------- Add Words for Autocomplete------------------------------------------
@@ -732,7 +772,8 @@ public class LiveAuto extends JFrame {
 	}
 
 	public void indicateErrors() {
-		if (spellCheckOn && !suggestion) {
+		if (spellCheckOn)//&& !acsuggestion 
+		{
 			int i;
 			String textTyped = area.getText().toLowerCase();
 			String word = "";

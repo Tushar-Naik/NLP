@@ -80,7 +80,7 @@ public class ContextRec {
 	    popupBeingShown=true;
         final JLabel j2=jLab; // trying to use j2 to pass arguments to createPopup(j2) when the additional searching option is used.
         popupMenu.removeAll();
-        popupMenu.setOpaque(false);
+        popupMenu.setOpaque(true);
         popupMenu.setBorder(null);
         popupMenu.add(jLab, BorderLayout.CENTER);
         popupMenu.addSeparator();
@@ -139,6 +139,7 @@ public class ContextRec {
 					{
 						query=jt.getText();
 						System.out.println("QUERY:"+query);
+						createPopup(j2);
 					}
 				}
 			});
