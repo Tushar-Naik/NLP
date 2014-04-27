@@ -77,32 +77,15 @@ public class ContextRec {
 	}
 	public void createPopup(JLabel jLab)			//  the contents of jlabel is shown as popup
 	{
-        popupBeingShown=true;
-        
+	    popupBeingShown=true;
+        final JLabel j2=jLab; // trying to use j2 to pass arguments to createPopup(j2) when the additional searching option is used.
         popupMenu.removeAll();
         popupMenu.setOpaque(false);
         popupMenu.setBorder(null);
         popupMenu.add(jLab, BorderLayout.CENTER);
         popupMenu.addSeparator();
         popupMenu.add(new JLabel("Search Results"));
-        final JTextField jt=new JTextField();
-        jt.setToolTipText(query);
-        JButton jb=new JButton("Quick Search");
-        JSplitPane jsp=new JSplitPane();
         
-        
-        popupMenu.addSeparator();
-        popupMenu.add(jt);
-        popupMenu.add(jb);
-        
-        jb.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				query=jt.getText();
-			}
-		});
         try {
         	
 			gs=new GoogleSearch(query);
@@ -140,12 +123,33 @@ public class ContextRec {
 				popupMenu.add(links[i]);
 			}
 		
+			// Extra searching option
+	        final JTextField jt=new JTextField();
+	        jt.setToolTipText(query);
+	        JButton jb=new JButton("Quick Search");
+	        popupMenu.addSeparator();
+	        popupMenu.add(jt);
+	        popupMenu.add(jb);
+	        jb.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					// TODO Auto-generated method stub
+					if(jt.getText().length()>1)
+					{
+						query=jt.getText();
+						System.out.println("QUERY:"+query);
+					}
+				}
+			});
+	        
         }
         catch (Exception e) {
 			// TODO Auto-generated catch block
         	popupMenu.add(new JMenuItem("No internet connection found, to perform search"));
 			e.printStackTrace();
 		}
+		
         
         popupMenu.show(textarea, 500, 300);							//  Right bottom of screen
         textarea.requestFocus();
@@ -245,27 +249,32 @@ public class ContextRec {
 	public void letterTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing a Letter?<br>Do you need some help?</html>";
+		String s="<html>Are you typing a Letter?<br>Do you need some help?<br>Here are few quick search Results</html>";
 		jLab=new JLabel(s);
-		jLab.setFont(new Font("Segoe UI", 0, 16));
 		query="help to type a letter";
 		createPopup(jLab);
 	}
 	public void resumeTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing a resume?<br>Do you need some help?</html>";
+		String s="<html>Are you typing a resume?<br>Do you need some help?<br>Here are few quick search Results</html>";
 		jLab=new JLabel(s);
 		jLab.setFont(new Font("Segoe UI", 0, 16));
-		query="help to type a resume";
 		createPopup(jLab);
 	}
 	public void codeTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing a code?<br>Do you need some help?</html>";
+		String s="<html>Are you typing a code?<br>Do you need some help?<br>Here are few quick search Results</html>";
 		jLab=new JLabel(s);
-		jLab.setFont(new Font("Segoe UI", 0, 16));
+		query="good coding techniques";
+		createPopup(jLab);
+	}
+	public void topicTheme()
+	{
+		JLabel jLab;
+		String s="<html>Are you typing something about "+query+"?<br>Do you need some help?<br>Here are few quick search Results</html>";
+		jLab=new JLabel(s);
 		query="good coding techniques";
 		createPopup(jLab);
 	}

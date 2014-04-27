@@ -39,11 +39,10 @@ public class LiveAuto extends JFrame {
 	private JFrame frame = new JFrame();
 	private JTextPane area = new JTextPane();
 	private JFileChooser dialog = new JFileChooser(
-			System.getProperty("user.dir")); // used to provide GUI to navigate
-												// FileSystem
+			System.getProperty("user.dir")); // used to provide GUI to navigate FileSystem
 	private String currentFile = "Untitled";
 	JToolBar tool;
-	// button variables
+	// button variables- to keep track of toggle buttons
 	boolean spellCheckOn;
 	boolean autoCompleteOn;
 	String beforeWordText="";
@@ -693,8 +692,7 @@ public class LiveAuto extends JFrame {
 			}
 			// -------------------- Add Words for Autocomplete------------------------------------------
 
-			if (separator.contains(e.getKeyChar()))// e.getKeyChar() == ' ' ||
-													// e.getKeyChar() == '.' ||
+			if (separator.contains(e.getKeyChar()))// e.getKeyChar() == ' ' || e.getKeyChar() == '.' ||
 													// e.getKeyChar() == '\n' ||
 													// e.getKeyChar() == ',' ||
 													// e.getKeyChar() == ';')
