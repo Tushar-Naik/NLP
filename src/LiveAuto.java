@@ -189,6 +189,7 @@ public class LiveAuto extends JFrame {
 				    	e2.printStackTrace();
 				    	return;
 				    }
+				    System.out.println("POS="+pos);
 					String typedText=area.getText();
 					String word="";
 					//extract the word at the caret position
@@ -238,7 +239,7 @@ public class LiveAuto extends JFrame {
 										}
 									});
 							spellSuggestion=true;
-							SuggestionPanels(area, pos, word, location, 1, candidateList);
+							SuggestionPanels(area, pos, word, location, 2, candidateList);
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
@@ -247,7 +248,7 @@ public class LiveAuto extends JFrame {
 							});
 						}
 						else
-							SuggestionPanels(area, pos, "", location, 1, null);
+							SuggestionPanels(area, pos, "", location, 2, null);
 							
 					}
 					
@@ -381,10 +382,12 @@ public class LiveAuto extends JFrame {
 	public void hidePopup() {
 		if (popupMenu != null && acsuggestion == true)
 		{	acsuggestion = false;
+			spellSuggestion=false;
 			popupMenu.setVisible(false);
 		}
 		if (popupMenu != null && spellSuggestion == true)
 		{	spellSuggestion=false;
+			acsuggestion=false;
 			popupMenu.setVisible(false);
 		}
 		
@@ -412,12 +415,21 @@ public class LiveAuto extends JFrame {
 		
 		else 
 		{
-			if(list2 !=null)		// spell error candidates to be shown
+			if(list2 !=null && spell ==1)		// spell error candidates to be shown
 			{
 				
 				spellSuggestion=true;
 				createSuggestionList(list2);
 				JScrollPane jsp=new JScrollPane(list);
+				jsp.setSize(100,200);
+				popupMenu.add(jsp, BorderLayout.CENTER);
+				popupMenu.show(textarea, location.x-subWord.length(), textarea.getBaseline(0, 0)
+						+ location.y + 20);
+			}
+			else if(list2 != null && spell==2)
+			{
+				spellSuggestion=true;
+				JScrollPane jsp=new JScrollPane(list2);
 				jsp.setSize(100,200);
 				popupMenu.add(jsp, BorderLayout.CENTER);
 				popupMenu.show(textarea, location.x-subWord.length(), textarea.getBaseline(0, 0)
@@ -483,16 +495,23 @@ public class LiveAuto extends JFrame {
 	public boolean insertSelection() {
 		if (list.getSelectedValue() != null) {
 			
-				final String selectedSuggestion = ((String) list.getSelectedValue()); // add  only the remaining part of the word to text area.
-				int bp=textarea.getCaretPosition()-1;
-				String TT=textarea.getText();
-				while(bp>=0 && !separator.contains(TT.charAt(bp))) bp--;
-				String prevText=TT.substring(0,bp+1);
-				textarea.setText(prevText+selectedSuggestion+separatorUsed);
+			final String selectedSuggestion = ((String) list.getSelectedValue()); // add  only the remaining part of the word to text area.
+			//System.out.println("selectedSugg:"+selectedSuggestion);
+			int bp=textarea.getCaretPosition()-2;
+			String TT=textarea.getText();
+			//System.out.println("TT:"+TT+"|");
+			//System.out.println("bp before:"+bp);
+			while(bp>=0 && !Character.isAlphabetic(TT.charAt(bp))) bp--;
+			while(bp>=0 && !separator.contains(TT.charAt(bp))) bp--;
+			//System.out.println("bp after:"+bp);
+			String prevText=TT.substring(0,bp+1);
+			System.out.println("prev Text:"+prevText);
+			textarea.setText(prevText+selectedSuggestion+"  ");
 			acsuggestion=true;
 			spellSuggestion=true;
 			hidePopup();
 			System.out.println("Hide called:"+495);
+			return true;
 		}
 		return false;
 	}
@@ -566,8 +585,9 @@ public class LiveAuto extends JFrame {
 
 		@Override
 		public void keyTyped(KeyEvent e) { 	//  executed 2nd
-			System.out.println("in keyTyped="+area.getText()+"|");
+			//System.out.println("in keyTyped="+area.getText()+"|");
 			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)) {
+				System.out.println("IN Enter");
 				if (insertSelection()) {
 					e.consume();
 					final int position = textarea.getCaretPosition();
@@ -575,6 +595,7 @@ public class LiveAuto extends JFrame {
 						@Override
 						public void run() {
 							try {
+								System.out.println("IN remove:pos="+position);
 								textarea.getDocument().remove(position - 1, 1);
 							} catch (BadLocationException e) {
 								e.printStackTrace();
@@ -586,7 +607,7 @@ public class LiveAuto extends JFrame {
 		}
 
 		public void keyReleased(KeyEvent e) { 	//  executed 3rd
-			System.out.println("in keyRel="+area.getText()+"|"+" spellsugges="+spellSuggestion);
+			//System.out.println("in keyRel="+area.getText()+"|"+" spellsugges="+spellSuggestion);
 			if (e.getKeyCode() == KeyEvent.VK_DOWN && (acsuggestion||spellSuggestion)) {
 					moveDown();
 					System.out.println("LIST:"+list);
@@ -630,7 +651,7 @@ public class LiveAuto extends JFrame {
 			changed = true;		//variable to enable save
 			Save.setEnabled(true);
 			SaveAs.setEnabled(true);
-			System.out.println("in keyPress="+area.getText()+"|");
+			//System.out.println("in keyPress="+area.getText()+"|");
 
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
 			if (spellCheckOn && !acsuggestion) 

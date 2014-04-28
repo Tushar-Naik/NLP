@@ -17,8 +17,10 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JEditorPane;
 import javax.swing.JList;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
@@ -42,6 +44,8 @@ public class LiveAuto2 extends JFrame {
 	//button variables
 	boolean spellCheckOn;
 	boolean autoCompleteOn;
+	String beforeWordText="";
+	String afterWordText="";
 	private boolean changed = false;	// to differentiate between save and saveAs
 	char prevChar;
 	
@@ -157,6 +161,91 @@ public class LiveAuto2 extends JFrame {
 		add(scroll, BorderLayout.CENTER);
 		area.requestFocus();
 		CR=new ContextRec(area);
+		area.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if(SwingUtilities.isRightMouseButton(e))
+				{
+					//get the caret position of the right click
+					JEditorPane editor = (JEditorPane) e.getSource();
+				    Point pt = new Point(e.getX(), e.getY());
+				    int pos = editor.viewToModel(pt);
+					String typedText=area.getText();
+					String word="";
+					//extract the word at the caret position
+					if(!separator.contains(typedText.charAt(pos)))  // check if a word exists in that position
+					{
+						int i=pos;
+						while(i<typedText.length()&&!separator.contains(typedText.charAt(i)))
+							word=word+typedText.charAt(i++);
+						afterWordText=typedText.substring(i);
+						System.out.println("after word= "+afterWordText);
+						i=pos-1;
+						while(i>=0&&!separator.contains(typedText.charAt(i)))
+							 word=typedText.charAt(i--)+word;
+						beforeWordText=typedText.substring(0,i+1);
+						System.out.println("before word= "+beforeWordText);
+						System.out.println("WORD on right click: "+word);
+					}
+					// if the word is error free, "nothing doing" else, show candidates
+					if(!obj.nWords.containsKey(word))
+					{
+						String correctWord=obj.correct(word);
+						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
+
+							ArrayList<String> cand = new ArrayList<String>(
+									obj.candidates.values());
+							String allCandidates[] = new String[cand.size()];
+							allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
+							candidateList.setListData(allCandidates);
+							jlsc.setViewportView(candidateList);
+							jlsc.setVisible(true);
+							// Add listener to JList
+							candidateList.addListSelectionListener(new ListSelectionListener() {
+
+										@Override
+										public void valueChanged(ListSelectionEvent arg0) {
+											// change the previous word
+											if (candidateList.getSelectedValue() != null) {
+												 
+												String wordSelected = candidateList.getSelectedValue();
+												area.setText(beforeWordText + wordSelected	+ afterWordText);
+												indicateErrors();
+												area.requestFocus();
+											}
+										}
+									});
+							
+						}
+						else
+						{
+							JLabel jl=new JLabel("No suggestions");
+							jlsc.setViewportView(jl);
+							jlsc.setVisible(true);
+							
+						}
+					}
+			     }
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+		});
 		setSize(800, 700);
 		setVisible(true);
 	}
