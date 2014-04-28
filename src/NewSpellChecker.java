@@ -6,7 +6,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.*;
 public class NewSpellChecker {
-	
+
+	int wordcase=0;		//0:all lower case,  1:1st caps  2: All caps
 	public final static HashMap<String, Long> nWords = new HashMap<String, Long>();
 	static float wordCount;		// to keep track of probability, frequency
 	public NewSpellChecker(String file) throws IOException 
@@ -25,6 +26,34 @@ public class NewSpellChecker {
 		}
 		in.close();
 	}
+	String caseHandler(String w)
+	{
+		System.out.println("WORD:"+w+" wordcase="+wordcase);
+	
+		switch(wordcase)
+		{
+		case 0: return w;
+		case 1: return makeCamelcase(w);
+		case 2: return makeUppercase(w);
+		default: System.out.println("Case error");
+		return w;
+		}
+	}
+	String makeCamelcase(String w)
+	{
+		System.out.println("Camel case entered. Word will be:"+Character.toUpperCase(w.charAt(0))+w.substring(1));
+		return Character.toUpperCase(w.charAt(0))+w.substring(1);
+	}
+	String makeUppercase(String w)
+	{
+		String ans="";
+		for(int i=0;i<w.length();i++)
+		{
+			ans+=Character.toUpperCase(w.charAt(i));
+		}
+			
+		return ans;
+	}
 	private final ArrayList<String> edits(String word) 
 	{
 		ArrayList<String> result = new ArrayList<String>();  //list of all words within edit distance of 1
@@ -37,6 +66,7 @@ public class NewSpellChecker {
 		// addition
 		for(int i=0; i <= word.length(); ++i) for(char c='a'; c <= 'z'; ++c) result.add(word.substring(0, i) + String.valueOf(c) + word.substring(i));
 		return result;
+		
 	}
 	public final ArrayList<String> getCandidates(String word)
 	{
@@ -45,13 +75,27 @@ public class NewSpellChecker {
 	HashMap<Long, String> candidates=null;
 	public final String correct(String word) 
 	{
+		int c;
+		wordcase=0;
+		for(c=0;c<word.length();c++)
+		{
+			char ch=word.charAt(c);
+			if(	Character.isLowerCase(ch))
+				break;
+			wordcase=1;
+		}
+		if(c==word.length())
+			wordcase=2;
+	
+		System.out.println("WORD:"+word+" wordcase="+wordcase);
 		String word1=word.toLowerCase();			//*
 		if(nWords.containsKey(word1)) return word;			//* check if word is in the dict
 		ArrayList<String> list = edits(word1);
 		candidates = new HashMap<Long, String>();
-		candidates.put((long) 0, word);
+		System.out.println("1:"+caseHandler(word));
+		candidates.put((long) 0, caseHandler(word));
 		// edit distance 1
-		for(String s : list) if(nWords.containsKey(s)) candidates.put(nWords.get(s),s);
+		for(String s : list) if(nWords.containsKey(s)) candidates.put(nWords.get(s),caseHandler(s));
 		if(candidates.size() > 1)
 		{
 			//System.out.println(word+" : "+candidates);			//*
@@ -59,7 +103,7 @@ public class NewSpellChecker {
 		}
 		//edit distance 2
 		for(String s : list) for(String w : edits(s)) if(nWords.containsKey(w))
-			candidates.put(nWords.get(w),w);
+			candidates.put(nWords.get(w),caseHandler(w));
 		//System.out.println(candidates.size());
 		//return candidates.size() > 0 ? candidates.get(Collections.max(candidates.keySet())) : word;
 		if(candidates.size()>1)                     
@@ -133,5 +177,6 @@ public class NewSpellChecker {
 		List<String> endResult=segment("ilovefrance");
 		for(String s1:endResult)
 			System.out.print(s1+' ');
+		
 	}
 }

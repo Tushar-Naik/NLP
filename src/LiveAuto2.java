@@ -560,6 +560,12 @@ public class LiveAuto2 extends JFrame {
 						word = typedText.charAt(i--) + word;/*
 					while (i >= 0)
 						remText = typedText.charAt(i--) + remText;*/
+					if(obj.nWords.containsKey(word.toLowerCase()))
+					{
+						jlsc.setVisible(false);
+					}
+					else
+					{						
 					if (word.length() > 1) {
 						correctedWord = obj.correct(word);
 						try {
@@ -607,6 +613,7 @@ public class LiveAuto2 extends JFrame {
 										}
 									});
 						}
+					}
 					}
 				}
 				else
