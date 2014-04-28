@@ -518,7 +518,7 @@ public class LiveAuto2 extends JFrame {
 
         	if(e.isControlDown() && e.getKeyCode()==KeyEvent.VK_V)
         	{
-        		area.setCaretPosition(area.getText().length()-getCaretAddidtion()-1);
+        		//area.setCaretPosition(area.getText().length()-getCaretAddidtion()-1);
 				tryToRecognize();
 				indicateErrors();
 				// Spell error detection
@@ -542,7 +542,7 @@ public class LiveAuto2 extends JFrame {
 			changed = true;
 			Save.setEnabled(true);
 			SaveAs.setEnabled(true);
-			System.out.println("typed text in pres="+area.getText()+"|");	
+			//System.out.println("typed text in pres="+area.getText()+"|");	
         	
         	// LIVE SPELL CHECKER CORRECTER
 			if (spellCheckOn && !suggestion) {
@@ -609,6 +609,7 @@ public class LiveAuto2 extends JFrame {
 											System.out.println("you selected: "+ word);
 											area.setText(remText + word+" ");
 											area.requestFocus();
+											indicateErrors();
 										}
 										}
 									});
@@ -624,19 +625,19 @@ public class LiveAuto2 extends JFrame {
 			
 			if(separator.contains(e.getKeyChar()))//e.getKeyChar() == ' ' || e.getKeyChar() == '.' || e.getKeyChar() == '\n' || e.getKeyChar() == ',' || e.getKeyChar() == ';')
 			{
-				tryToRecognize();			
-				int caret=area.getCaretPosition()-1;
-				String typed=area.getText();
-				String lastWord="";
-				while(caret>=0&&!separator.contains(typed.charAt(caret)))//typed.charAt(caret)!=' ')
+				tryToRecognize();
+				int caret = area.getCaretPosition() - 1;
+				String typed = area.getText();
+				String lastWord = "";
+				while (caret >= 0 && !separator.contains(typed.charAt(caret)))// typed.charAt(caret)!=' ')
 				{
-					lastWord=typed.charAt(caret)+lastWord;
+					lastWord = typed.charAt(caret) + lastWord;
 					caret--;
 				}
-				System.out.println("LastWord= "+lastWord);
-				if(lastWord.length()>7&&!Completable.contains(lastWord))
+				// System.out.println("LastWord= "+lastWord);
+				if (lastWord.length() > 7 && !Completable.contains(lastWord)
+						&& obj.nWords.containsKey(lastWord))
 					Completable.add(lastWord);
-				System.out.println("Completable List= "+Completable);
 			}
 			prevChar=e.getKeyChar();
 		}
@@ -663,8 +664,8 @@ public class LiveAuto2 extends JFrame {
 			String textTyped=area.getText().toLowerCase();
 			String word="";
 			int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
-			//System.out.println("------------------IN INDICATE---------------");
-			//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
+			System.out.println("------------------IN INDICATE---------------");
+			System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
 			for(i=0;i<textTyped.length();i++)
 	        {
 				char c=textTyped.charAt(i);
@@ -672,11 +673,11 @@ public class LiveAuto2 extends JFrame {
 	        	{
 	        		if (word.length() > 1)
 	        		{
-	        			//System.out.println("WORD:"+word+"|");
+	        			System.out.println("WORD:"+word+"|");
 	    					
 	    					if(!obj.nWords.containsKey(word))
 	    					{
-	    						//System.out.println("WORD:"+word+" NOT PRESENT");   					
+	    						System.out.println("WORD:"+word+" NOT PRESENT");   					
 	    			
 	    						//Highlight from indexOfWord to indexOfWord+word.length
 	    						Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(Color.red);

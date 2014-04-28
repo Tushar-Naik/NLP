@@ -56,6 +56,7 @@ public class LiveAuto extends JFrame {
 	char separatorUsed; // to print back the separator after correction
 	boolean acsuggestion = false; // variable to make sure that the autocomplete suggestion popup vanishes wen not used by user
 	//boolean wordBeingTyped= false; // variable to make sure that the candidatesuggestion popup vanishes wen not being used..
+	boolean enterSeparatorpressed=false;
 	boolean spellSuggestion = false;
 	ArrayList<String> Completable = null; // list of all words, that have been
 											// typed by user, of length >7
@@ -490,6 +491,43 @@ public class LiveAuto extends JFrame {
 				}
 			}
 		});
+		list.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed) {
+					System.out.println("IN Enter");
+					if (insertSelection()) {
+						e.consume();
+						final int position = textarea.getCaretPosition();
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									System.out.println("IN remove:pos="+position);
+									textarea.getDocument().remove(position - 1, 1);
+								} catch (BadLocationException e) {
+									e.printStackTrace();
+								}
+							}
+						});
+					}
+				}
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	public boolean insertSelection() {
@@ -519,6 +557,7 @@ public class LiveAuto extends JFrame {
 	public void moveUp() {
 
 		if (list != null) {
+			list.requestFocus();
 			int index = Math.max(list.getSelectedIndex() - 1, 0);
 			System.out.println("index selected " + index);
 			selectIndex(index);
@@ -531,6 +570,7 @@ public class LiveAuto extends JFrame {
 		if (list == null)
 			System.out.println("LIST IS NULL");
 		else {
+			list.requestFocus();
 			int index = Math.min(list.getSelectedIndex() + 1, list.getModel()
 					.getSize() - 1);
 			System.out.println("index selected " + index);
@@ -586,7 +626,8 @@ public class LiveAuto extends JFrame {
 		@Override
 		public void keyTyped(KeyEvent e) { 	//  executed 2nd
 			//System.out.println("in keyTyped="+area.getText()+"|");
-			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)) {
+			/*System.out.println("INENTER:"+e.getKeyChar()+"|");
+			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed) {
 				System.out.println("IN Enter");
 				if (insertSelection()) {
 					e.consume();
@@ -603,7 +644,7 @@ public class LiveAuto extends JFrame {
 						}
 					});
 				}
-			}
+			}*/
 		}
 
 		public void keyReleased(KeyEvent e) { 	//  executed 3rd
@@ -624,8 +665,10 @@ public class LiveAuto extends JFrame {
 				}
 			
 			if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
-				area.setCaretPosition(area.getText().length()
-						- getCaretAddidtion() - 1);
+				//area.setCaretPosition(area.getText().length()	- getCaretAddidtion() - 1);
+				String textTyped=area.getText();
+				System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
+				
 				tryToRecognize();
 				indicateErrors();
 				// Spell error detection
@@ -659,10 +702,14 @@ public class LiveAuto extends JFrame {
 
 				if (separator.contains(e.getKeyChar()))
 				{
+
+					enterSeparatorpressed=false;
 					System.out.println("Entered spellcking mechanism");
 					//wordBeingTyped=false;
 					separatorUsed = e.getKeyChar();
 					System.out.println("Entered spellcking mechanism: sep="+separatorUsed+"|");
+					if(separatorUsed=='\n'&& spellSuggestion==false)
+						enterSeparatorpressed=true;
 					String typedText;
 					String word, correctedWord;
 					int i = 0;
@@ -674,6 +721,13 @@ public class LiveAuto extends JFrame {
 						// != '.'&& typedText.charAt(i) != '\n')
 						word = typedText.charAt(i--) + word;
 					System.out.println("word="+word);
+					if(obj.nWords.containsKey(word.toLowerCase()))
+					{
+						spellSuggestion=true;
+						hidePopup();
+					}
+					else
+					{
 					if (word.length() > 1) {
 						correctedWord = obj.correct(word);
 						try {
@@ -743,6 +797,7 @@ public class LiveAuto extends JFrame {
 							});
 						}
 					}
+					}
 				} 
 				else if(Character.isAlphabetic(e.getKeyChar()))
 				{
@@ -793,43 +848,47 @@ public class LiveAuto extends JFrame {
 	}
 
 	public void indicateErrors() {
-		if (spellCheckOn)//&& !acsuggestion 
-		{
+		if (spellCheckOn && !acsuggestion) {
 			int i;
-			String textTyped = area.getText().toLowerCase();
-			String word = "";
-			int caretAddidtion = 0; // to equate caret position and area.getText().length() (new line takes 2 caret positions)
-			// System.out.println("------------------IN INDICATE---------------");
-			// System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
-			for (i = 0; i < textTyped.length(); i++) {
-				char c = textTyped.charAt(i);
-				if (separator.contains(c) || c == '\n'
-						|| Character.isWhitespace(c) || Character.isSpace(c)) {
-					if (word.length() > 1) {
-						// System.out.println("WORD:"+word+"|");
-
-						if (!obj.nWords.containsKey(word)) {
-							// System.out.println("WORD:"+word+" NOT PRESENT");
-
-							// Highlight from indexOfWord to
-							// indexOfWord+word.length
-							Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(Color.red);
-							Highlighter highlighter = area.getHighlighter();
-							try {
-								highlighter.addHighlight(i-caretAddidtion-word.length(), i-caretAddidtion,painter);
-							} catch (BadLocationException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}
-					}
-					if (c == '\n')
-						caretAddidtion++;
-					word = "";
-				} else
-					word = word + c;
-			}
-
+			String textTyped=area.getText().toLowerCase();
+			String word="";
+			int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
+			System.out.println("------------------IN INDICATE---------------");
+			//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
+			//System.out.println("TYPEDTEXT:"+textTyped);
+			for(i=0;i<textTyped.length();i++)
+	        {
+				char c=textTyped.charAt(i);
+	        	if(separator.contains(c)||c=='\n'||Character.isWhitespace(c)||Character.isSpace(c))
+	        	{
+	        		//System.out.println("IN SEPARATOR TRUE:"+c+"|");
+	        		if (word.length() > 1)
+	        		{
+	        			//System.out.println("WORD:"+word+"|");
+	    					
+	    					if(!obj.nWords.containsKey(word))
+	    					{
+	    						//System.out.println("WORD:"+word+" NOT PRESENT");   					
+	    			
+	    						//Highlight from indexOfWord to indexOfWord+word.length
+	    						Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(Color.red);
+	    						Highlighter highlighter = area.getHighlighter();
+	    						try {
+									highlighter.addHighlight(i-caretAddidtion-word.length(),i-caretAddidtion, painter);
+	    							//highlighter.addHighlight(i-word.length(),i, painter);
+								} catch (BadLocationException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+	    					}
+	    			}
+	        		if(c=='\n') caretAddidtion++;
+	        		word="";
+	        	}
+	        	else 
+	        		word=word+c;
+	        }
+		
 		}
 	}
 

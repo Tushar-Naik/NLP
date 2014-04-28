@@ -87,12 +87,12 @@ public class NewSpellChecker {
 		if(c==word.length())
 			wordcase=2;
 	
-		System.out.println("WORD:"+word+" wordcase="+wordcase);
+		//System.out.println("WORD:"+word+" wordcase="+wordcase);
 		String word1=word.toLowerCase();			//*
 		if(nWords.containsKey(word1)) return word;			//* check if word is in the dict
 		ArrayList<String> list = edits(word1);
 		candidates = new HashMap<Long, String>();
-		System.out.println("1:"+caseHandler(word));
+		//System.out.println("1:"+caseHandler(word));
 		candidates.put((long) 0, caseHandler(word));
 		// edit distance 1
 		for(String s : list) if(nWords.containsKey(s)) candidates.put(nWords.get(s),caseHandler(s));
@@ -111,6 +111,7 @@ public class NewSpellChecker {
 		
 		// lastly check for segmentation
 		String splitString="";
+		if(word.length()>15) return word;
 		List<String> endResult=segment(word);
 		for(String s:endResult)
 			splitString=splitString+s+" ";
