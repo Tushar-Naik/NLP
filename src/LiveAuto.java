@@ -190,7 +190,7 @@ public class LiveAuto extends JFrame {
 				    	e2.printStackTrace();
 				    	return;
 				    }
-				    System.out.println("POS="+pos);
+				   // System.out.println("POS="+pos);
 					String typedText=area.getText();
 					String word="";
 					//extract the word at the caret position
@@ -235,11 +235,10 @@ public class LiveAuto extends JFrame {
 												area.requestFocus();
 												indicateErrors();
 												hidePopup();
-												System.out.println("Hide called:"+236);
+												//System.out.println("Hide called:"+236);
 											}
 										}
 									});
-							spellSuggestion=true;
 							SuggestionPanels(area, pos, word, location, 2, candidateList);
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
@@ -463,7 +462,7 @@ public class LiveAuto extends JFrame {
 		// System.out.println("IN CREATLIST=="+subWord+Completable+data+data.size());
 		if (data.size() == 0) {
 			hidePopup();
-			System.out.println("Hide called:"+453);
+			//System.out.println("Hide called:"+453);
 			return false;
 		}
 		JList jl = new JList(data.toArray());
@@ -475,7 +474,7 @@ public class LiveAuto extends JFrame {
 	public void createSuggestionList(JList jl) {
 
 		list=jl;
-		System.out.println("LIST:"+list);
+		//System.out.println("LIST:"+list);
 		list.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
@@ -487,7 +486,7 @@ public class LiveAuto extends JFrame {
 					acsuggestion=true;
 					spellSuggestion=true;
 					hidePopup();
-					System.out.println("Hide called:"+477);
+					//System.out.println("Hide called:"+477);
 				}
 			}
 		});
@@ -496,8 +495,12 @@ public class LiveAuto extends JFrame {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				// TODO Auto-generated method stub
-				if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed) {
-					System.out.println("IN Enter");
+				
+				//System.out.println("in keyTyped="+area.getText()+"|");
+				//System.out.println("INENTER:"+e.getKeyChar()+"|"+enterSeparatorpressed);
+				if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion))// && !enterSeparatorpressed) 
+					{
+					//System.out.println("IN Enter");
 					if (insertSelection()) {
 						e.consume();
 						final int position = textarea.getCaretPosition();
@@ -505,7 +508,7 @@ public class LiveAuto extends JFrame {
 							@Override
 							public void run() {
 								try {
-									System.out.println("IN remove:pos="+position);
+									//System.out.println("IN remove:pos="+position);
 									textarea.getDocument().remove(position - 1, 1);
 								} catch (BadLocationException e) {
 									e.printStackTrace();
@@ -535,7 +538,7 @@ public class LiveAuto extends JFrame {
 			
 			final String selectedSuggestion = ((String) list.getSelectedValue()); // add  only the remaining part of the word to text area.
 			//System.out.println("selectedSugg:"+selectedSuggestion);
-			int bp=textarea.getCaretPosition()-2;
+			int bp=textarea.getText().length()-1;
 			String TT=textarea.getText();
 			//System.out.println("TT:"+TT+"|");
 			//System.out.println("bp before:"+bp);
@@ -543,12 +546,12 @@ public class LiveAuto extends JFrame {
 			while(bp>=0 && !separator.contains(TT.charAt(bp))) bp--;
 			//System.out.println("bp after:"+bp);
 			String prevText=TT.substring(0,bp+1);
-			System.out.println("prev Text:"+prevText);
+			//System.out.println("prev Text:"+prevText);
 			textarea.setText(prevText+selectedSuggestion+"  ");
 			acsuggestion=true;
 			spellSuggestion=true;
 			hidePopup();
-			System.out.println("Hide called:"+495);
+			//System.out.println("Hide called:"+495);
 			return true;
 		}
 		return false;
@@ -566,7 +569,7 @@ public class LiveAuto extends JFrame {
 	}
 
 	public void moveDown() {
-		System.out.println("LIST=="+list);
+		//System.out.println("LIST=="+list);
 		if (list == null)
 			System.out.println("LIST IS NULL");
 		else {
@@ -586,7 +589,7 @@ public class LiveAuto extends JFrame {
 
 	public void showSuggestion() {
 		hidePopup();
-		System.out.println("Hide called:"+530);
+		//System.out.println("Hide called:"+530);
 		final int position = textarea.getCaretPosition();
 		int caret = position - 1;
 		Point location; // location is collected to display the popup at that location
@@ -626,8 +629,10 @@ public class LiveAuto extends JFrame {
 		@Override
 		public void keyTyped(KeyEvent e) { 	//  executed 2nd
 			//System.out.println("in keyTyped="+area.getText()+"|");
-			/*System.out.println("INENTER:"+e.getKeyChar()+"|");
-			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed) {
+			//System.out.println("INENTER:"+e.getKeyChar()+"|");
+			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed) 
+			 list.requestFocus();
+			/*{
 				System.out.println("IN Enter");
 				if (insertSelection()) {
 					e.consume();
@@ -657,7 +662,7 @@ public class LiveAuto extends JFrame {
 				} else if (Character.isWhitespace(e.getKeyChar())) {
 					if(acsuggestion)
 					{	hidePopup();
-					System.out.println("Hide called:"+598);
+					//System.out.println("Hide called:"+598);
 					}
 				} 
 				else if (Completable != null && Completable.size() > 0) {
@@ -667,7 +672,7 @@ public class LiveAuto extends JFrame {
 			if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
 				//area.setCaretPosition(area.getText().length()	- getCaretAddidtion() - 1);
 				String textTyped=area.getText();
-				System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
+				//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
 				
 				tryToRecognize();
 				indicateErrors();
@@ -697,19 +702,19 @@ public class LiveAuto extends JFrame {
 			//System.out.println("in keyPress="+area.getText()+"|");
 
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
-			if (spellCheckOn && !acsuggestion) 
+			if (spellCheckOn) 
 				{
 
 				if (separator.contains(e.getKeyChar()))
 				{
 
 					enterSeparatorpressed=false;
-					System.out.println("Entered spellcking mechanism");
+					//System.out.println("Entered spellcking mechanism");
 					//wordBeingTyped=false;
 					separatorUsed = e.getKeyChar();
 					System.out.println("Entered spellcking mechanism: sep="+separatorUsed+"|");
 					if(separatorUsed=='\n'&& spellSuggestion==false)
-						enterSeparatorpressed=true;
+						enterSeparatorpressed=true;			// to solve the enter"\n" bug
 					String typedText;
 					String word, correctedWord;
 					int i = 0;
@@ -724,6 +729,7 @@ public class LiveAuto extends JFrame {
 					if(obj.nWords.containsKey(word.toLowerCase()))
 					{
 						spellSuggestion=true;
+						acsuggestion=true;
 						hidePopup();
 					}
 					else
@@ -803,7 +809,7 @@ public class LiveAuto extends JFrame {
 				{
 					//wordBeingTyped=true;
 					hidePopup();
-					System.out.println("Hide called:"+730);
+					//System.out.println("Hide called:"+730);
 				}
 			}
 			// -------------------- Add Words for Autocomplete------------------------------------------
@@ -854,22 +860,29 @@ public class LiveAuto extends JFrame {
 			String word="";
 			int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
 			System.out.println("------------------IN INDICATE---------------");
-			//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
-			//System.out.println("TYPEDTEXT:"+textTyped);
+			System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
+			System.out.println("TYPEDTEXT:"+textTyped);
 			for(i=0;i<textTyped.length();i++)
 	        {
 				char c=textTyped.charAt(i);
+				System.out.println("c="+c+"|");
 	        	if(separator.contains(c)||c=='\n'||Character.isWhitespace(c)||Character.isSpace(c))
 	        	{
-	        		//System.out.println("IN SEPARATOR TRUE:"+c+"|");
+	        		if(i>0&&separator.contains(textTyped.charAt(i-1))) continue;
+	        		if(c=='\n'&&word=="") 
+	        		{
+	        			caretAddidtion++;
+	        			System.out.println("CARETINC--------------------------");
+	        		}
+	        		System.out.println("IN SEPARATOR TRUE:"+c+"|");
 	        		if (word.length() > 1)
 	        		{
-	        			//System.out.println("WORD:"+word+"|");
+	        			System.out.println("WORD:"+word+"|");
 	    					
 	    					if(!obj.nWords.containsKey(word))
 	    					{
-	    						//System.out.println("WORD:"+word+" NOT PRESENT");   					
-	    			
+	    						System.out.println("WORD:"+word+" NOT PRESENT");   					
+	    						System.out.println("TO HIGHLIGHT:  i="+i+" len="+word.length()+" word="+word);
 	    						//Highlight from indexOfWord to indexOfWord+word.length
 	    						Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(Color.red);
 	    						Highlighter highlighter = area.getHighlighter();
@@ -882,7 +895,6 @@ public class LiveAuto extends JFrame {
 								}
 	    					}
 	    			}
-	        		if(c=='\n') caretAddidtion++;
 	        		word="";
 	        	}
 	        	else 

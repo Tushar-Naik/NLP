@@ -28,7 +28,7 @@ public class NewSpellChecker {
 	}
 	String caseHandler(String w)
 	{
-		System.out.println("WORD:"+w+" wordcase="+wordcase);
+		//System.out.println("WORD:"+w+" wordcase="+wordcase);
 	
 		switch(wordcase)
 		{
