@@ -2,6 +2,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -20,7 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
@@ -39,7 +42,7 @@ public class LiveAuto extends JFrame {
 	private static final long serialVersionUID = 1L;
 	// Editor Declarations
 	private JFrame frame = new JFrame();
-	private JTextPane area = new JTextPane();
+	private JTextArea area = new JTextArea();
 	private JFileChooser dialog = new JFileChooser(
 			System.getProperty("user.dir")); // used to provide GUI to navigate FileSystem
 	private String currentFile = "Untitled";
@@ -58,6 +61,7 @@ public class LiveAuto extends JFrame {
 	//boolean wordBeingTyped= false; // variable to make sure that the candidatesuggestion popup vanishes wen not being used..
 	boolean enterSeparatorpressed=false;
 	boolean spellSuggestion = false;
+	boolean rightClickListOn = false;
 	ArrayList<String> Completable = null; // list of all words, that have been
 											// typed by user, of length >7
 	final JList<String> candidateList = new JList<String>(); // list of all words, that can fix the wrong one.
@@ -167,7 +171,8 @@ public class LiveAuto extends JFrame {
 		// area.setSize(300, 300);
 		area.setPreferredSize(new Dimension(500, 500));
 		area.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-		// area.setBounds(0,0,200,200);
+		area.setLineWrap(true);
+		//area.setBounds(0,0,200,200);
 		JScrollPane scroll = new JScrollPane(area);
 		frame.add(scroll, BorderLayout.CENTER);
 		area.requestFocus();
@@ -178,10 +183,10 @@ public class LiveAuto extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				if(SwingUtilities.isRightMouseButton(e))
 				{
+					System.out.println("____________  IN RIGHT CLICK _________");
 					//get the caret position of the right click
-					JEditorPane editor = (JEditorPane) e.getSource();
 				    Point pt = new Point(e.getX(), e.getY());
-				    int pos = editor.viewToModel(pt);
+				    int pos = area.viewToModel(pt);
 				    Point location; // location is collected to display the popup at that
 					// location
 				    try {
@@ -194,7 +199,7 @@ public class LiveAuto extends JFrame {
 					String typedText=area.getText();
 					String word="";
 					//extract the word at the caret position
-					if(!separator.contains(typedText.charAt(pos)))  // check if a word exists in that position
+					if(pos<typedText.length( )&& !separator.contains(typedText.charAt(pos)))  // check if a word exists in that position
 					{
 						int i=pos;
 						while(i<typedText.length()&&!separator.contains(typedText.charAt(i)))
@@ -227,14 +232,18 @@ public class LiveAuto extends JFrame {
 										@Override
 										public void valueChanged(ListSelectionEvent arg0) {
 											// change the previous word
-											if (candidateList.getSelectedValue() != null) {
+											if (candidateList.getSelectedValue() != null && rightClickListOn) {
 												 
 												String wordSelected = candidateList.getSelectedValue();
 												System.out.println("you selected: "+ wordSelected);
+												System.out.println("Bef:"+beforeWordText+" after:"+afterWordText+" word:"+wordSelected);
 												area.setText(beforeWordText + wordSelected	+ afterWordText);
 												area.requestFocus();
+												area.setCaretPosition(area.getText().length());
+												System.out.println("CARET+"+area.getCaretPosition()+" Len="+area.getText().length());
 												indicateErrors();
 												hidePopup();
+												
 												//System.out.println("Hide called:"+236);
 											}
 										}
@@ -368,14 +377,14 @@ public class LiveAuto extends JFrame {
 	public JPopupMenu popupMenu;
 	public String subWord;
 	public int insertionPosition;
-	public JTextPane textarea;
+	public JTextArea textarea;
 
 	public void initPanel() {
 		textarea = area;
 		insertionPosition = 0;
 		popupMenu = null;
 	}/*
-	 * public void init(JTextPane area) { textarea=area; insertionPosition=0;
+	 * public void init(JTextArea area) { textarea=area; insertionPosition=0;
 	 * popupMenu=null; }
 	 */
 
@@ -394,7 +403,7 @@ public class LiveAuto extends JFrame {
 	}
 	
 	//show popup, if spell=0, for autocomplete, if spell=1, for spelling error candidates
-	public void SuggestionPanels(JTextPane textarea, int position,
+	public void SuggestionPanels(JTextArea textarea, int position,
 			String subWord, Point location, int spell, JList list2) {
 		this.insertionPosition = position;
 		this.subWord = subWord;
@@ -429,6 +438,7 @@ public class LiveAuto extends JFrame {
 			else if(list2 != null && spell==2)
 			{
 				spellSuggestion=true;
+				rightClickListOn=true;
 				JScrollPane jsp=new JScrollPane(list2);
 				jsp.setSize(100,200);
 				popupMenu.add(jsp, BorderLayout.CENTER);
@@ -602,7 +612,12 @@ public class LiveAuto extends JFrame {
 		acsuggestion=true;
 		String typed = textarea.getText();
 		String lastWord = "";
-		while (caret >= 0 && typed.charAt(caret) != ' ') 
+		/*while (caret >= 0 && typed.charAt(caret) != ' ') 
+		{
+			lastWord = typed.charAt(caret) + lastWord;
+			caret--;
+		}*/
+		while (caret >= 0 && separator.contains(typed.charAt(caret))) 
 		{
 			lastWord = typed.charAt(caret) + lastWord;
 			caret--;
@@ -660,6 +675,7 @@ public class LiveAuto extends JFrame {
 				} else if (e.getKeyCode() == KeyEvent.VK_UP && (acsuggestion||spellSuggestion)) {
 					moveUp();
 				} else if (Character.isWhitespace(e.getKeyChar())) {
+					indicateErrors();
 					if(acsuggestion)
 					{	hidePopup();
 					//System.out.println("Hide called:"+598);
@@ -673,7 +689,8 @@ public class LiveAuto extends JFrame {
 				//area.setCaretPosition(area.getText().length()	- getCaretAddidtion() - 1);
 				String textTyped=area.getText();
 				//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
-				
+
+
 				tryToRecognize();
 				indicateErrors();
 				// Spell error detection
@@ -682,37 +699,27 @@ public class LiveAuto extends JFrame {
 				indicateErrors();
 		}
 
-		private int getCaretAddidtion() {
-			// TODO Auto-generated method stub
-			String textTyped = area.getText().toLowerCase();
-			int caretAddidtion = 0, i; // to equate caret position and area.getText().length() (new line takes 2 caret positions)
-			for (i = 0; i < textTyped.length(); i++) {
-				char c = textTyped.charAt(i);
-				if (c == '\n')
-					caretAddidtion++;
-			}
-			return caretAddidtion;
-		}
  
 		public void keyPressed(KeyEvent e) {	//  executed 1st
 			
 			changed = true;		//variable to enable save
 			Save.setEnabled(true);
 			SaveAs.setEnabled(true);
+			rightClickListOn=false;
 			//System.out.println("in keyPress="+area.getText()+"|");
 
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
 			if (spellCheckOn) 
 				{
-
+				System.out.println("Entered speell on with c="+e.getKeyChar()+"|");
 				if (separator.contains(e.getKeyChar()))
 				{
-
+					area.revalidate();
 					enterSeparatorpressed=false;
-					//System.out.println("Entered spellcking mechanism");
+					System.out.println("Entered spellcking mechanism");
 					//wordBeingTyped=false;
 					separatorUsed = e.getKeyChar();
-					System.out.println("Entered spellcking mechanism: sep="+separatorUsed+"|");
+					//System.out.println("Entered spellcking mechanism: sep="+separatorUsed+"|");;
 					if(separatorUsed=='\n'&& spellSuggestion==false)
 						enterSeparatorpressed=true;			// to solve the enter"\n" bug
 					String typedText;
@@ -720,7 +727,9 @@ public class LiveAuto extends JFrame {
 					int i = 0;
 					word = "";
 					typedText = area.getText(); // http://docs.oracle.com/javase/tutorial/uiswing/components/editorpane.html
-					i = typedText.length() - 1;		// ERRORMARK : for \t or \n. use ( till it reaches an alphabet, i--)
+					System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+typedText.length());
+					i = area.getCaretPosition()-1;		// ERRORMARK : for \t or \n. use ( till it reaches an alphabet, i--)
+					//while (i >= 0 && separator.contains(typedText.charAt(i))) i--;
 					while (i >= 0 && !separator.contains(typedText.charAt(i)))
 						// && typedText.charAt(i) != ' '&& typedText.charAt(i)
 						// != '.'&& typedText.charAt(i) != '\n')
@@ -858,37 +867,36 @@ public class LiveAuto extends JFrame {
 			int i;
 			String textTyped=area.getText().toLowerCase();
 			String word="";
-			int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
-			System.out.println("------------------IN INDICATE---------------");
-			System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
-			System.out.println("TYPEDTEXT:"+textTyped);
+			//int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
+			//System.out.println("------------------IN INDICATE---------------");
+			//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
+			//System.out.println("TYPEDTEXT:"+textTyped);
 			for(i=0;i<textTyped.length();i++)
 	        {
 				char c=textTyped.charAt(i);
-				System.out.println("c="+c+"|");
-	        	if(separator.contains(c)||c=='\n'||Character.isWhitespace(c)||Character.isSpace(c))
+				if(separator.contains(c)||c=='\n'||Character.isWhitespace(c)||Character.isSpace(c))
 	        	{
 	        		if(i>0&&separator.contains(textTyped.charAt(i-1))) continue;
 	        		if(c=='\n'&&word=="") 
 	        		{
-	        			caretAddidtion++;
-	        			System.out.println("CARETINC--------------------------");
+	        			//caretAddidtion++;
+	        	//		System.out.println("CARETINC--------------------------");
 	        		}
-	        		System.out.println("IN SEPARATOR TRUE:"+c+"|");
+	        		//System.out.println("IN SEPARATOR TRUE:"+c+"|");
 	        		if (word.length() > 1)
 	        		{
-	        			System.out.println("WORD:"+word+"|");
+	        		//	System.out.println("WORD:"+word+"|");
 	    					
 	    					if(!obj.nWords.containsKey(word))
 	    					{
-	    						System.out.println("WORD:"+word+" NOT PRESENT");   					
-	    						System.out.println("TO HIGHLIGHT:  i="+i+" len="+word.length()+" word="+word);
+	    					//	System.out.println("WORD:"+word+" NOT PRESENT");   					
+	    				//		System.out.println("TO HIGHLIGHT:  i="+i+" len="+word.length()+" word="+word);
 	    						//Highlight from indexOfWord to indexOfWord+word.length
 	    						Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(Color.red);
 	    						Highlighter highlighter = area.getHighlighter();
 	    						try {
-									highlighter.addHighlight(i-caretAddidtion-word.length(),i-caretAddidtion, painter);
-	    							//highlighter.addHighlight(i-word.length(),i, painter);
+									//highlighter.addHighlight(i-caretAddidtion-word.length(),i-caretAddidtion, painter);
+	    							highlighter.addHighlight(i-word.length(),i, painter);
 								} catch (BadLocationException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();

@@ -160,7 +160,7 @@ public class LiveAuto2 extends JFrame {
 		JScrollPane scroll = new JScrollPane(area);
 		add(scroll, BorderLayout.CENTER);
 		area.requestFocus();
-		CR=new ContextRec(area);
+		//CR=new ContextRec(area);
 		area.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -546,6 +546,7 @@ public class LiveAuto2 extends JFrame {
         	
         	// LIVE SPELL CHECKER CORRECTER
 			if (spellCheckOn && !suggestion) {
+				System.out.println("Entered speell on with c="+e.getKeyChar());
 
 				if (separator.contains(e.getKeyChar()))//e.getKeyChar() == ' ' || e.getKeyChar() == '.'|| e.getKeyChar() == '\n' || e.getKeyChar() == ','|| e.getKeyChar() == ';')
 				{

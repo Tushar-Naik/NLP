@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Font;
+import java.awt.List;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +14,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -23,7 +28,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -33,7 +38,7 @@ import org.omg.CORBA.portable.InputStream;
 
 public class ContextRec {
 	int sentenceCount;
-	JTextPane textarea;
+	JTextArea textarea;
 	boolean contextRecUsed=false;		// variable, to remove the popup when he has clicked it.
 	boolean popupBeingShown=false;		// variable to let the popup persist on the screen
 	ArrayList<Character> separator=null;
@@ -51,8 +56,9 @@ public class ContextRec {
 	int hitCount[]=new int[n];
 	String query="";
 	GoogleSearch gs;
+	public static HashMap<String, Long> TF;	//Term Frequency
 	
-	public ContextRec(JTextPane area)			//  constructor to initialize all variables
+	public ContextRec(JTextArea area)			//  constructor to initialize all variables
 	{
 		char sep[]={' ',',','\n','\t',';','.','?','(',')','!','@','#','-','_','[','{',']','}',':'};
 		separator=new ArrayList<Character>(); for(char c:sep)separator.add(c);
@@ -170,14 +176,16 @@ public class ContextRec {
 		boolean hitsExist=false;
 		for(i=0;i<n;i++)
 		{
-			if(hitCount[i]>1)				// 0 or 1 or 2 ----- CHECK THIS
+			if(hitCount[i]>2)				// 0 or 1 or 2 ----- CHECK THIS based on survey, study, analysis of documents
 			{
 				hitsExist=true;
 				break;
 			}
 		}
 		if(!hitsExist)
-			return -1;
+		{
+			return topicExtraction();
+		}
 		for(i=1;i<n;i++)
 		{
 			if(hitCount[i]>max)							//------------------------- NEED TO TAKE CARE OF TIES
@@ -189,40 +197,92 @@ public class ContextRec {
 		return index;
 	}
 	
+	public int topicExtraction() {
+		// TODO Auto-generated method stub
+		
+		// 1: Heading extraction.
+		// 2: Topic Extraction using Word Frequency Analysis
+		String textTyped=textarea.getText();
+		String heading="";
+		int i=0;
+		while(i<textTyped.length() && textTyped.charAt(i)=='\n') i++;
+		while(i<textTyped.length() && !(textTyped.charAt(i)=='\n')) heading+=textTyped.charAt(i++);
+		// this part is for heading extraction
+		if(textTyped.charAt(i)=='\n' && heading.length()>2)
+		{
+			System.out.println("HEADING FOUND:"+heading);
+			query=heading;
+			return 4;
+		}
+		// this part is for topic extraction
+		String maxFreqWord="";
+		Entry<String,Long> maxEntry = null;	
+		for(Entry<String,Long> entry : TF.entrySet()) {
+			if (maxEntry == null || entry.getValue() > maxEntry.getValue()) {
+				maxEntry = entry;
+			}
+		}
+		maxFreqWord=maxEntry.getKey();
+		System.out.println("MAXWORD="+maxFreqWord+TF.get(maxFreqWord));
+		System.out.println(TF.toString());
+
+		if(TF.get(maxFreqWord)>3)
+		{
+			System.out.println("KEYWORD FOUND:"+maxFreqWord);
+			query=maxFreqWord;
+			return 4;
+		}
+			
+		return -1;
+	}
+
 	public void recognizer() throws BadLocationException		//   the main concept of recognizing the context
 	{
+		
 		alreadyMatched.removeAll(alreadyMatched);
 		if(contextRecUsed)
 		{
 			hidePopup();
 			return;
 		}		
-		System.out.println("Sentence count= "+sentenceCount);
-		//textarea.getDocument().insertString(caretPos, "!SENT", null);
+		//textarea.updateUI();
+		System.out.println("TRY TO RECOGNIZE\nSentence count= "+sentenceCount);
         String textTyped=textarea.getText().toLowerCase();
-        String word="";
         int i;
         // empty the hitcount for all of the context types
         for(i=0;i<n;i++) hitCount[i]=0;
         // extract each word and increment hitCount if the word is a tag
-        for(i=0;i<textTyped.length();i++)
+
+        TF= new HashMap<String, Long>();	
+		Pattern p = Pattern.compile("\\w+");
+		Matcher m = p.matcher(textTyped.toLowerCase());
+		String word="";
+		while(m.find())
+		{
+			TF.put((word = m.group()), TF.containsKey(word) ? TF.get(word) + 1 : 1);
+			System.out.print(m.group()+"  * ");
+			for(int j=0;j<n;j++)
+    		{
+    			if(tags[j].contains(word)&&word.length()>1 && ! alreadyMatched.contains(word))
+    			{
+    				hitCount[j]++;
+    				//System.out.println("HITS:"+word+hitCount[j]);
+    				alreadyMatched.add(word);
+    			}        			
+    		}
+		}
+		//System.out.println(TF.toString());
+		
+        /*for(i=0;i<textTyped.length();i++)
         {
         	char c=textTyped.charAt(i);
         	if(separator.contains(c))
         	{
-        		for(int j=0;j<n;j++)
-        		{
-        			if(tags[j].contains(word)&&word.length()>1 && ! alreadyMatched.contains(word))
-        			{
-        				hitCount[j]++;
-        				System.out.println("HITS:"+word+hitCount[j]);
-        				alreadyMatched.add(word);
-        			}
-        		}
+        		
         		word="";
         	}
         	else word=word+c;
-        }
+        }*/
         int index=getMax();		// to know which had the context type had the most hits
         System.out.println("index selected="+index);
         switch(index)
@@ -239,8 +299,10 @@ public class ContextRec {
 					/*
         	case 3: Theme();        			
 					break;
-        	case 4: Theme();        			
+					*/
+        	case 4: topicTheme();        			
 					break;
+        	/* 
         	case 5: Theme();        			
 					break;
 					*/
@@ -250,7 +312,7 @@ public class ContextRec {
 	public void letterTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing a Letter?<br>Do you need some help?<br>Here are few quick search Results</html>";
+		String s="<html>Are you typing a Letter?<br>Do you need some help?<br>Here are few quick search results from google</html>";
 		jLab=new JLabel(s);
 		query="help to type a letter";
 		createPopup(jLab);
@@ -258,7 +320,7 @@ public class ContextRec {
 	public void resumeTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing a resume?<br>Do you need some help?<br>Here are few quick search Results</html>";
+		String s="<html>Are you typing a resume?<br>Do you need some help?<br>Here are few quick search results from google</html>";
 		jLab=new JLabel(s);
 		jLab.setFont(new Font("Segoe UI", 0, 16));
 		createPopup(jLab);
@@ -266,7 +328,7 @@ public class ContextRec {
 	public void codeTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing a code?<br>Do you need some help?<br>Here are few quick search Results</html>";
+		String s="<html>Are you typing a code?<br>Do you need some help?<br>Here are few quick search results from google</html>";
 		jLab=new JLabel(s);
 		query="good coding techniques";
 		createPopup(jLab);
@@ -274,9 +336,8 @@ public class ContextRec {
 	public void topicTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing something about "+query+"?<br>Do you need some help?<br>Here are few quick search Results</html>";
+		String s="<html>Are you typing something about \""+query+"\"?<br>Do you need some help?<br>Here are few quick search results from google</html>";
 		jLab=new JLabel(s);
-		query="good coding techniques";
 		createPopup(jLab);
 	}
 	public static void main(String[] args) throws IOException {
