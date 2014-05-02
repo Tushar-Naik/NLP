@@ -832,7 +832,8 @@ public class LiveAuto extends JFrame {
 
 	public void tryToRecognize() // -- Context Recognizer
 	{
-		if (CR.getSentenceCount() > 1) // If he has typed more than 2 sentences
+		new CRBkground(area).execute();
+		/*if (CR.getSentenceCount() > 1) // If he has typed more than 2 sentences
 		{
 			try {
 				CR.recognizer();
@@ -842,12 +843,15 @@ public class LiveAuto extends JFrame {
 				e1.printStackTrace();
 			}
 		} else
-			CR.hidePopup();
+			CR.hidePopup();*/
 	}
 
 	public void indicateErrors() {
 		if (spellCheckOn && !acsuggestion) {
-			int i;
+			
+			new UnderlineBkground(area, obj, separator).execute();
+			
+			/*int i;
 			String textTyped=area.getText().toLowerCase();
 			String word="";
 			//int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
@@ -891,7 +895,7 @@ public class LiveAuto extends JFrame {
 	        	else 
 	        		word=word+c;
 	        }
-		
+		*/
 		}
 	}
 
