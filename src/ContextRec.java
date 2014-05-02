@@ -208,7 +208,7 @@ public class ContextRec {
 		while(i<textTyped.length() && textTyped.charAt(i)=='\n') i++;
 		while(i<textTyped.length() && !(textTyped.charAt(i)=='\n')) heading+=textTyped.charAt(i++);
 		// this part is for heading extraction
-		if(textTyped.charAt(i)=='\n' && heading.length()>2)
+		if(i<textTyped.length() && textTyped.charAt(i)=='\n' && heading.length()>2)
 		{
 			System.out.println("HEADING FOUND:"+heading);
 			query=heading;

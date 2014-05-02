@@ -42,7 +42,7 @@ public class LiveAuto extends JFrame {
 	private static final long serialVersionUID = 1L;
 	// Editor Declarations
 	private JFrame frame = new JFrame();
-	private JTextArea area = new JTextArea();
+	public JTextArea area = new JTextArea();
 	private JFileChooser dialog = new JFileChooser(
 			System.getProperty("user.dir")); // used to provide GUI to navigate FileSystem
 	private String currentFile = "Untitled";
@@ -417,8 +417,7 @@ public class LiveAuto extends JFrame {
 			JScrollPane jsp=new JScrollPane(list);
 			jsp.setSize(100,200);
 			popupMenu.add(jsp, BorderLayout.CENTER);
-			popupMenu.show(textarea, location.x, textarea.getBaseline(0, 0)
-					+ location.y + 20);
+			popupMenu.show(textarea, location.x, textarea.getBaseline(0, 0)	+ location.y + 20);
 			}
 		}
 		
@@ -601,7 +600,7 @@ public class LiveAuto extends JFrame {
 		hidePopup();
 		//System.out.println("Hide called:"+530);
 		final int position = textarea.getCaretPosition();
-		int caret = position - 1;
+		int caret = position -1;
 		Point location; // location is collected to display the popup at that location
 		try {
 			location = textarea.modelToView(position).getLocation();
@@ -611,23 +610,21 @@ public class LiveAuto extends JFrame {
 		}
 		acsuggestion=true;
 		String typed = textarea.getText();
+		System.out.println("Typed="+typed+caret);
 		String lastWord = "";
-		/*while (caret >= 0 && typed.charAt(caret) != ' ') 
-		{
-			lastWord = typed.charAt(caret) + lastWord;
-			caret--;
-		}*/
-		while (caret >= 0 && separator.contains(typed.charAt(caret))) 
+		while (caret >= 0 && !separator.contains(typed.charAt(caret))) 
 		{
 			lastWord = typed.charAt(caret) + lastWord;
 			caret--;
 		}
 		if (caret >= position)
 			return;
+
+		System.out.println("subword="+subWord);
 		final String subWord = lastWord;	
 		if (subWord.length() < 3) {
 			return;
-			}
+		}
 		SuggestionPanels(textarea, position, subWord, location,0,null);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -635,6 +632,18 @@ public class LiveAuto extends JFrame {
 				textarea.requestFocusInWindow();
 			}
 		});
+	}
+	public boolean isNumber(String w)
+	{
+		int a;
+		try{
+			a=Integer.parseInt(w);
+		}
+		catch(NumberFormatException e)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	//------------------------- Key Listeners for all the editor features -----------------------
@@ -645,7 +654,7 @@ public class LiveAuto extends JFrame {
 		public void keyTyped(KeyEvent e) { 	//  executed 2nd
 			//System.out.println("in keyTyped="+area.getText()+"|");
 			//System.out.println("INENTER:"+e.getKeyChar()+"|");
-			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed) 
+			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed && list!=null) 
 			 list.requestFocus();
 			/*{
 				System.out.println("IN Enter");
@@ -682,6 +691,7 @@ public class LiveAuto extends JFrame {
 					}
 				} 
 				else if (Completable != null && Completable.size() > 0) {
+					System.out.println("trying autocomplete..");
 					showSuggestion();
 				}
 			
@@ -709,10 +719,16 @@ public class LiveAuto extends JFrame {
 			//System.out.println("in keyPress="+area.getText()+"|");
 
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
-			if (spellCheckOn) 
+			if (spellCheckOn && !acsuggestion) // !acsuggestion bcoz, type positive, then pos"\n" it autocorrects it to pus, but doesnt take the autocomplete suggestion into account..
+			{
+				//System.out.println("Entered speell on with c="+e.getKeyChar()+"|");
+				if(Character.isAlphabetic(e.getKeyChar()))
 				{
-				System.out.println("Entered speell on with c="+e.getKeyChar()+"|");
-				if (separator.contains(e.getKeyChar()))
+					//wordBeingTyped=true;
+					hidePopup();
+					System.out.println("Hide called:"+730);
+				}
+				else if (separator.contains(e.getKeyChar()))
 				{
 					area.revalidate();
 					enterSeparatorpressed=false;
@@ -735,90 +751,56 @@ public class LiveAuto extends JFrame {
 						// != '.'&& typedText.charAt(i) != '\n')
 						word = typedText.charAt(i--) + word;
 					System.out.println("word="+word);
-					if(obj.nWords.containsKey(word.toLowerCase()))
+					if(!isNumber(word))
 					{
-						spellSuggestion=true;
-						acsuggestion=true;
-						hidePopup();
-					}
-					else
-					{
-					if (word.length() > 1) {
-						correctedWord = obj.correct(word);
-						try {
-							area.getDocument().remove(area.getCaretPosition() - (word.length()),(word.length()));
-							area.getDocument().insertString(
-									area.getCaretPosition(), correctedWord,null);
-						} catch (BadLocationException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+						if(obj.nWords.containsKey(word.toLowerCase()))
+						{
+							spellSuggestion=true;
+							acsuggestion=true;
+							hidePopup();
 						}
-						// area.setText(remText + correctedWord );
-						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
-							
-							int pos = area.getCaretPosition();
-						    Point location; // location is collected to display the popup at that
-							// location
-						    try {
-						    	location = textarea.modelToView(pos).getLocation();
-						    } catch (BadLocationException e2) {
-						    	e2.printStackTrace();
-						    	return;
-						    }
-							ArrayList<String> cand = new ArrayList<String>(
-									obj.candidates.values());
-							String allCandidates[] = new String[cand.size()];
-							System.out.println("candidates:"+cand);
-							allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
-							candidateList.setListData(allCandidates);
-							
-							/*// Add listener to JList
-							candidateList.addListSelectionListener(new ListSelectionListener() {
-
+						else
+						{
+							if (word.length() > 1) {
+								correctedWord = obj.correct(word);
+								try {
+									area.getDocument().remove(area.getCaretPosition() - (word.length()),(word.length()));
+									area.getDocument().insertString(
+											area.getCaretPosition(), correctedWord,null);
+								} catch (BadLocationException e1) {
+							// 	TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+						// 	area.setText(remText + correctedWord );
+								if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
+									
+									int pos = area.getCaretPosition();
+									Point location; // location is collected to display the popup at that
+							// 	location
+									try {
+										location = textarea.modelToView(pos).getLocation();
+									} catch (BadLocationException e2) {
+										e2.printStackTrace();
+										return;
+									}
+									ArrayList<String> cand = new ArrayList<String>(
+										obj.candidates.values());
+									String allCandidates[] = new String[cand.size()];
+									System.out.println("candidates:"+cand);
+									allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
+									candidateList.setListData(allCandidates);
+									
+									SuggestionPanels(area, pos, word, location, 1, candidateList);
+									SwingUtilities.invokeLater(new Runnable() {
 										@Override
-										public void valueChanged(ListSelectionEvent arg0) {
-											// change the previous word
-											if (candidateList.getSelectedValue() != null) {
-												String typedText;
-												String word, remText;
-												int i = 0;
-												word = "";
-												remText = "";
-												typedText = area.getText(); // http://docs.oracle.com/javase/tutorial/uiswing/components/editorpane.html
-												i = area.getCaretPosition() - 2;
-												while (i >= 0 && typedText.charAt(i) != ' '
-														&& typedText.charAt(i) != '.' && typedText.charAt(i) != '\n')
-													word = typedText
-															.charAt(i--) + word;
-												while (i >= 0)
-													remText = typedText.charAt(i--)+ remText;
-												word = candidateList.getSelectedValue();
-												System.out.println("you selected: "+ word);
-												area.setText(remText + word+ " ");
-												area.requestFocus();
-												//wordBeingTyped=true;
-												hidePopup();
-												indicateErrors();
-											}
+										public void run() {
+											textarea.requestFocusInWindow();
 										}
 									});
-								*/
-							SuggestionPanels(area, pos, word, location, 1, candidateList);
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									textarea.requestFocusInWindow();
 								}
-							});
+							}
 						}
 					}
-					}
-				} 
-				else if(Character.isAlphabetic(e.getKeyChar()))
-				{
-					//wordBeingTyped=true;
-					hidePopup();
-					//System.out.println("Hide called:"+730);
 				}
 			}
 			// -------------------- Add Words for Autocomplete------------------------------------------
@@ -828,6 +810,7 @@ public class LiveAuto extends JFrame {
 													// e.getKeyChar() == ',' ||
 													// e.getKeyChar() == ';')
 			{
+				System.out.println("IN AUTOCOMPLETE");
 				tryToRecognize();
 				int caret = area.getCaretPosition() - 1;
 				String typed = area.getText();
@@ -837,11 +820,11 @@ public class LiveAuto extends JFrame {
 					lastWord = typed.charAt(caret) + lastWord;
 					caret--;
 				}
-				// System.out.println("LastWord= "+lastWord);
+				System.out.println("LastWord= "+lastWord);
 				if (lastWord.length() > 7 && !Completable.contains(lastWord)
 						&& obj.nWords.containsKey(lastWord))
 					Completable.add(lastWord);
-				// System.out.println("Completable List= "+Completable);
+				System.out.println("Completable List= "+Completable);
 			}
 			prevChar = e.getKeyChar();
 		}
@@ -883,7 +866,7 @@ public class LiveAuto extends JFrame {
 	        	//		System.out.println("CARETINC--------------------------");
 	        		}
 	        		//System.out.println("IN SEPARATOR TRUE:"+c+"|");
-	        		if (word.length() > 1)
+	        		if (word.length() > 1 && !isNumber(word))
 	        		{
 	        		//	System.out.println("WORD:"+word+"|");
 	    					
