@@ -74,14 +74,15 @@ public class trainBigramTrigram {
 					
 		
 				}
+				
 				currenttrigram.set(0, currenttrigram.get(1));
 				currenttrigram.set(1, currenttrigram.get(2));
-				
-				currentbigram.remove(2);
+				currenttrigram.remove(2);
 			}
 			else
 			{
-				currentbigram.add(x);
+				
+				currenttrigram.add(x);
 				
 			}
 					
@@ -95,14 +96,15 @@ public class trainBigramTrigram {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("BIGRAMS:");
+		/*System.out.println("BIGRAMS:");
 		for(Entry<String,Integer>e:trigramCount.entrySet())
 		{
 			System.out.println(e.getKey()+"=>"+e.getValue());
-		}
-		ArrayList<String>a=new ArrayList<String>();
-		a.add("dt");a.add("bez");a.add("pps");
-		trigramCount.get(a.toString());
+		}*/
+		/*ArrayList<String>a=new ArrayList<String>();
+		a.add("dt");a.add("bez");a.add("pps");*/
+		
+		System.out.println(trigramCount.get("[dt, bez, pps]"));
 		
 	}
 

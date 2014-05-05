@@ -37,7 +37,7 @@ public class CalcSentScore {
     	float pTtriGram=1;
     	for(int i=0;i<s.length;i++)
     	{
-    		System.out.println(s[i]);
+    		//System.out.println(s[i]);
     		String currentPos=gpos.getMaxPOS(s[i]);
     		
     		pWGivenT=pWGivenT*(twwp.wordWithPosCount.get(s[i]+"/"+currentPos))/twc.posCount.get(currentPos);
@@ -53,21 +53,22 @@ public class CalcSentScore {
     		ArrayList<String> posBiGram = new ArrayList<String>();
     		posBiGram.add(gpos.getMaxPOS(s[i-2]));
     		posBiGram.add(gpos.getMaxPOS(s[i-1]));
-    		
-    		pTtriGram=pTtriGram*(tbt.trigramCount.get(posTriGram.toString()))/(tbt.bigramCount.get(posBiGram.toString()));
+    		//System.out.println(posTriGram.toString());
+    		//System.out.println(tbt.trigramCount.get(posTriGram.toString()));
+    		pTtriGram=pTtriGram*(tbt.trigramCount.get(posTriGram.toString())==null?1:tbt.trigramCount.get(posTriGram.toString()))/(tbt.bigramCount.get(posBiGram.toString())==null?1:tbt.bigramCount.get(posBiGram.toString()));
 
-    		System.out.println(pTtriGram+" "+pWGivenT);
+    		//System.out.println(pTtriGram+" "+pWGivenT);
     	}
     	totalScore=pWGivenT*pTtriGram;
     	return totalScore;
     }
     public static void main(String args[])
     {
-    	String a="this is there";
-    	String b="this is it";
+    	String a="this is their job";
+    	String b="this is there job";
     	CalcSentScore c=new CalcSentScore();
-    	//System.out.println(c.BestSentence(a));
-    	System.out.println(c.BestSentence(b));
+    	System.out.println("sent1 score="+c.BestSentence(a));
+    	System.out.println("sent2 score="+c.BestSentence(b));
     }
     
 }
