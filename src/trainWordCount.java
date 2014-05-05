@@ -6,14 +6,15 @@ import java.util.Map.Entry;
 
 
 public class trainWordCount {
-	public static HashMap<String,Integer>wordCount=new HashMap<String,Integer>();
-	public static HashMap<String,Integer>posCount=new HashMap<String,Integer>();
-	public static void populateWordCount() throws FileNotFoundException
+	public  HashMap<String,Integer>wordCount=new HashMap<String,Integer>();
+	public  HashMap<String,Integer>posCount=new HashMap<String,Integer>();
+	public  trainWordCount() throws FileNotFoundException
 	{
 		Scanner s=new Scanner(new File("merged"));
 		while(s.hasNext())
 		{
-			String currentWord=s.next().split("/")[0].toLowerCase();
+			String obj=s.next();
+			String currentWord=obj.split("/")[0].toLowerCase();
 			
 			
 			if(wordCount.containsKey(currentWord))
@@ -26,11 +27,34 @@ public class trainWordCount {
 			else
 				wordCount.put(currentWord, 1);
 			
+			String currentPos;
+			try
+			{
+				 currentPos=obj.split("/")[1].toLowerCase();
+			}
+			catch(Exception e)
+			{
+				currentPos="UNK";
+				
+			}
+			
+			
+			
+			if(posCount.containsKey(currentPos))
+			{
+				int count=posCount.get(currentPos);
+				count++;
+				posCount.remove(currentPos);
+				posCount.put(currentPos, count);
+			}
+			else
+				posCount.put(currentPos, 1);
+			
 			
 		}
 		s.close();
 	}
-	public static void populatePosCount() throws FileNotFoundException
+	/*public  void populatePosCount() throws FileNotFoundException
 	{
 		Scanner x=new Scanner(new File("merged"));
 		while(x.hasNext())
@@ -61,22 +85,23 @@ public class trainWordCount {
 			
 		}
 		
-	}
+	}*/
 	public static void main(String args[])
 	{
+		trainWordCount t = null;
 		try {
-			populateWordCount();
-			populatePosCount();
-		} catch (FileNotFoundException e) {
+			t = new trainWordCount();
+		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		for(Entry<String,Integer>e:posCount.entrySet())
+		
+		for(Entry<String,Integer>e:t.posCount.entrySet())
 			System.out.println(e.getKey()+"="+e.getValue());
 		//System.out.println(wordCount.get("forensic"));
-	/*	String x="a/b";
+		String x="a/b";
 		String y=x.split("/")[1];
-		System.out.println(y);*/
+		System.out.println(y);
 				
 	}
 

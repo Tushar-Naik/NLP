@@ -4,12 +4,21 @@ import java.util.ArrayList;
 //This class goes through Brown Corpus and populates a dictionary of words and their POS.
 public class getPOS 
 {
-	static WordToPosMap w=new WordToPosMap();
+	static WordToPosMap w;
 	static ArrayList<String>posArray=new ArrayList<String>();
-	
+	public getPOS()
+	{
+		try {
+			w=new WordToPosMap();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 public static String getMaxPOS(String word)
 {
 	ArrayList<String> list=w.POSdict.get(word);
+	
 	String currentMax = null; 
 	int maxCount = 0;
 	String current = null;
@@ -43,7 +52,7 @@ public static String getMaxPOS(String word)
 	{
 		posArray.clear();
 		s=s.toLowerCase();
-		w.populatePOSdict();
+		//w.populatePOSdict();
 		for(String x:s.split(" "))
 		{	
 			
@@ -56,12 +65,12 @@ public static String getMaxPOS(String word)
 		
 				
 	}
-	
 	public static void main(String args[])
 	{
+		getPOS g=new getPOS();
 		try {
-			System.out.println("you're");
-			outputPOS("you're");
+			System.out.println("this");
+			g.outputPOS("this");
 			for(String x:posArray)
 				System.out.println(x);
 			
@@ -70,8 +79,16 @@ public static String getMaxPOS(String word)
 			e.printStackTrace();
 		}
 		try {
-			System.out.println("your");
-			outputPOS("your");
+			System.out.println("this");
+			g.outputPOS("this");
+			for(String x:posArray)
+				System.out.println(x);
+			System.out.println("is");
+			g.outputPOS("is");
+			for(String x:posArray)
+				System.out.println(x);
+			System.out.println("it");
+			g.outputPOS("it");
 			for(String x:posArray)
 				System.out.println(x);
 		} catch (FileNotFoundException e) {

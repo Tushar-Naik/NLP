@@ -10,7 +10,7 @@ class WordToPosMap
 {
 
 	HashMap<String , ArrayList<String> > POSdict=new HashMap<String,ArrayList<String>>();
-	 void populatePOSdict() throws FileNotFoundException
+	 public WordToPosMap() throws FileNotFoundException
 	{
 		Scanner s=new Scanner(new File("merged"));
 		while(s.hasNext())
@@ -52,20 +52,18 @@ class WordToPosMap
 			System.out.println(e.getKey()+"\t\t\t"+e.getValue());
 		}
 	}
-}
 
-class trainPOSfromBrown
-{
 	public static void main(String args[])
 	{
-		WordToPosMap w=new WordToPosMap();
+		WordToPosMap w=null;
 		try {
-			w.populatePOSdict();
+			w=new WordToPosMap();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		w.printPOSdict();
+		//w.printPOSdict();
+		System.out.println(w.POSdict.get("this"));
 		
 		
 	}

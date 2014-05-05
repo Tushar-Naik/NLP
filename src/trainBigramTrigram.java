@@ -7,9 +7,10 @@ import java.util.Scanner;
 
 
 public class trainBigramTrigram {
+	
 	public static HashMap<String,Integer> bigramCount=new HashMap<String,Integer>();
 	public static HashMap<String,Integer> trigramCount=new HashMap<String,Integer>();
-	public static void train() throws FileNotFoundException
+	public trainBigramTrigram() throws FileNotFoundException 
 	{
 		Scanner s=new Scanner(new File("merged"));
 		ArrayList<String> currentbigram=new ArrayList<String>();
@@ -20,15 +21,12 @@ public class trainBigramTrigram {
 			String x;
 			try
 			{
-			
 				x=s.next().split("/")[1];
 			}
 			catch(Exception e)
 			{
 				x="UNK";
 			}
-			
-			
 			//train bigram counts in brown corpus
 			if(currentbigram.size()==2)
 			{
@@ -44,11 +42,7 @@ public class trainBigramTrigram {
 				}
 				else
 				{
-					
-					
 					bigramCount.put(currentbigram.toString(), 1);
-					
-		
 				}
 				currentbigram.set(0, currentbigram.get(1));
 				currentbigram.remove(1);
@@ -96,16 +90,19 @@ public class trainBigramTrigram {
 	public static void main(String args[])
 	{
 		try {
-			train();
+			new trainBigramTrigram();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("BIGRAMS:");
-		for(Entry<String,Integer>e:bigramCount.entrySet())
+		for(Entry<String,Integer>e:trigramCount.entrySet())
 		{
 			System.out.println(e.getKey()+"=>"+e.getValue());
 		}
+		ArrayList<String>a=new ArrayList<String>();
+		a.add("dt");a.add("bez");a.add("pps");
+		trigramCount.get(a.toString());
 		
 	}
 

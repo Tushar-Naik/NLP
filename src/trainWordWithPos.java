@@ -6,36 +6,48 @@ import java.util.Map.Entry;
 
 
 public class trainWordWithPos {
-	public static HashMap<String,Integer>wordCount=new HashMap<String,Integer>();
-	public static void populateWordCount() throws FileNotFoundException
+	public static HashMap<String,Integer>wordWithPosCount=new HashMap<String,Integer>();
+	public trainWordWithPos() throws FileNotFoundException
 	{
-		Scanner s=new Scanner(new File("ca01"));
+		Scanner s=new Scanner(new File("merged"));
 		while(s.hasNext())
 		{
+			String wordAndPos;
+			
 			String x=s.next();
-			String wordAndPos=x.split("/")[0].toLowerCase()+"/"+x.split("/")[1];
-			if(wordCount.containsKey(wordAndPos))
+			try
 			{
-				int count=wordCount.get(wordAndPos);
+				 wordAndPos=x.split("/")[0].toLowerCase()+"/"+x.split("/")[1];	
+			}
+			catch(Exception e)
+			{
+				wordAndPos=x.split("/")[0].toLowerCase()+"/"+"UNK";
+			}
+			
+			if(wordWithPosCount.containsKey(wordAndPos))
+			{
+				int count=wordWithPosCount.get(wordAndPos);
 				count++;
-				wordCount.remove(wordAndPos);
-				wordCount.put(wordAndPos, count);
+				wordWithPosCount.remove(wordAndPos);
+				wordWithPosCount.put(wordAndPos, count);
 			}
 			else
-				wordCount.put(wordAndPos, 1);
+				wordWithPosCount.put(wordAndPos, 1);
 		}
-	}
+	}/*
 	public static void main(String args[])
 	{
+		trainWordWithPos t= null;
 		try {
-			populateWordCount();
+			t= new trainWordWithPos();
+			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for(Entry<String,Integer>e:wordCount.entrySet())
+		for(Entry<String,Integer>e:wordWithPosCount.entrySet())
 			System.out.println(e.getKey()+"="+e.getValue());
 	}
 
-
+*/
 }
