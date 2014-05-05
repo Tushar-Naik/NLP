@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
@@ -44,6 +45,8 @@ public class LiveAuto extends JFrame {
 	// Editor Declarations
 	private JFrame frame = new JFrame();
 	public JTextArea area = new JTextArea();
+	public JTextField find= new JTextField(10);
+	public JButton advancedFind = new JButton("Advanced");
 	private JFileChooser dialog = new JFileChooser(
 			System.getProperty("user.dir")); // used to provide GUI to navigate FileSystem
 	private String currentFile = "Untitled";
@@ -70,6 +73,7 @@ public class LiveAuto extends JFrame {
 	/* Create all objects to save time */
 	NewSpellChecker obj;
 	ContextRec CR;
+	FindImplementation FI;
 
 	public LiveAuto() throws IOException {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -83,7 +87,6 @@ public class LiveAuto extends JFrame {
 		for (char c : sep)
 			separator.add(c);
 		obj = new NewSpellChecker("count_big.txt");
-		initPanel();
 		area.setFont(new Font("Segoe UI", 0, 14));
 		
 		// add(scroll, BorderLayout.CENTER);
@@ -91,6 +94,7 @@ public class LiveAuto extends JFrame {
 		frame.setLayout(new FlowLayout());
 		JMenuBar JMB = new JMenuBar();
 		frame.setJMenuBar(JMB);
+		find = new JTextField (10);
 		JMenu file = new JMenu("File");
 		JMenu edit = new JMenu("Edit");
 		JMB.add(file);
@@ -162,7 +166,9 @@ public class LiveAuto extends JFrame {
 		completeOn.setSelected(true);
 		tool.add(spellOn);
 		tool.add(completeOn);
-		tool.addSeparator(new Dimension(50, 50));
+		//tool.addSeparator(new Dimension(50, 50));
+		tool.add(find);
+		tool.add(advancedFind);
 		Save.setEnabled(false);
 		SaveAs.setEnabled(false);
 
@@ -178,7 +184,7 @@ public class LiveAuto extends JFrame {
 		JScrollPane scroll = new JScrollPane(area);
 		frame.add(scroll, BorderLayout.CENTER);
 		area.requestFocus();
-		CR = new ContextRec(area);
+		area.setWrapStyleWord(true) ;
 		// option of right click on the misspelt word
 		area.addMouseListener(new MouseListener() {
 			@Override
@@ -282,6 +288,10 @@ public class LiveAuto extends JFrame {
 				// TODO Auto-generated method stub
 			}
 		});
+
+		FI= new FindImplementation(find, advancedFind, area);
+		initPanel();
+		CR = new ContextRec(area);
 		frame.setSize(800, 700);
 		frame.setVisible(true);
 	}

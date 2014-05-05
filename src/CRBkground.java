@@ -13,7 +13,7 @@ public class CRBkground extends SwingWorker<Integer, Integer>
 	public CRBkground( JTextArea a, ContextRec c) {
 		// TODO Auto-generated constructor stub
 		area=a;
-		CR = new ContextRec(area);
+		CR = c;
 	}
     protected Integer doInBackground() throws Exception
     {
