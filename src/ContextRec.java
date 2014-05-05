@@ -93,7 +93,7 @@ public class ContextRec {
         popupMenu.add(new JLabel("Search Results"));
         
         try {
-        	
+        	System.out.println("QUERY+"+query);
 			gs=new GoogleSearch(query);
 			JMenuItem links[] = new JMenuItem[gs.total];
 			System.out.println("TOTAL SEARCH RESULTS"+gs.total);
@@ -312,7 +312,7 @@ public class ContextRec {
 	public void letterTheme()
 	{
 		JLabel jLab;
-		String s="<html>Are you typing a Letter?<br>Do you need some help?<br>Here are few quick search results from google</html>";
+		String s="<html>Are you typing a Letter?<br>Do you need some help?<br>Here are few quick search results from google </html>";
 		jLab=new JLabel(s);
 		query="help to type a letter";
 		createPopup(jLab);

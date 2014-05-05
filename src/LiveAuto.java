@@ -33,10 +33,11 @@ public class LiveAuto extends JFrame {
 	/**
 	 * @author Tushar Naik, Vamanan T S, Suhas V
 	 * 
-	 * A text editor using java that implements, (1) a live contextual Spell
-	 * Checker-Corrector using that Bayesian model, n-grams and the noisy
-	 * channel model, (2) a Context Recognizer using probabilistic tagging, (3)
-	 * an Auto Complete feature using a hash map, and (4) a Regex Find option.
+	 * A text editor using java that implements, 
+	 * (1) a live contextual Spell  Checker-Corrector using that Bayesian model, n-grams and the noisy
+	 * channel model, (2) a Context Recognizer using probabilistic tagging, 
+	 * (3) an Auto Complete feature using a hash map, and 
+	 * (4) a Regex Find option.
 	 */
 
 	private static final long serialVersionUID = 1L;
@@ -62,6 +63,7 @@ public class LiveAuto extends JFrame {
 	boolean enterSeparatorpressed=false;
 	boolean spellSuggestion = false;
 	boolean rightClickListOn = false;
+	boolean addToDict = false; //to check if the word typed, was wrong, or even if no suggestions exist
 	ArrayList<String> Completable = null; // list of all words, that have been
 											// typed by user, of length >7
 	final JList<String> candidateList = new JList<String>(); // list of all words, that can fix the wrong one.
@@ -260,9 +262,7 @@ public class LiveAuto extends JFrame {
 							SuggestionPanels(area, pos, "", location, 2, null);
 							
 					}
-					
 			     }
-				
 			}
 
 			@Override
@@ -280,7 +280,6 @@ public class LiveAuto extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-
 			}
 		});
 		frame.setSize(800, 700);
@@ -610,7 +609,7 @@ public class LiveAuto extends JFrame {
 		}
 		acsuggestion=true;
 		String typed = textarea.getText();
-		System.out.println("Typed="+typed+caret);
+		//System.out.println("Typed="+typed+caret);
 		String lastWord = "";
 		while (caret >= 0 && !separator.contains(typed.charAt(caret))) 
 		{
@@ -620,7 +619,7 @@ public class LiveAuto extends JFrame {
 		if (caret >= position)
 			return;
 
-		System.out.println("subword="+subWord);
+		//System.out.println("subword="+subWord);
 		final String subWord = lastWord;	
 		if (subWord.length() < 3) {
 			return;
@@ -678,29 +677,35 @@ public class LiveAuto extends JFrame {
 
 		public void keyReleased(KeyEvent e) { 	//  executed 3rd
 			//System.out.println("in keyRel="+area.getText()+"|"+" spellsugges="+spellSuggestion);
-			if (e.getKeyCode() == KeyEvent.VK_DOWN && (acsuggestion||spellSuggestion)) {
-					moveDown();
-					System.out.println("LIST:"+list);
-				} else if (e.getKeyCode() == KeyEvent.VK_UP && (acsuggestion||spellSuggestion)) {
-					moveUp();
-				} else if (Character.isWhitespace(e.getKeyChar())) {
-					indicateErrors();
-					if(acsuggestion)
-					{	hidePopup();
-					//System.out.println("Hide called:"+598);
-					}
-				} 
-				else if (Completable != null && Completable.size() > 0) {
-					System.out.println("trying autocomplete..");
-					showSuggestion();
-				}
-			
+			if (e.getKeyCode() == KeyEvent.VK_DOWN && (acsuggestion||spellSuggestion)) 
+			{
+				moveDown();
+				System.out.println("LIST:"+list);
+			} 
+			else if (e.getKeyCode() == KeyEvent.VK_UP && (acsuggestion||spellSuggestion)) 
+			{		
+				moveUp();	
+			} 
+			else if (Character.isWhitespace(e.getKeyChar())) 
+			{
+				indicateErrors();
+				if(acsuggestion)
+					hidePopup();
+				//System.out.println("Hide called:"+598);
+			} 
+			else if (Completable != null && Completable.size() > 0) {
+					//System.out.println("trying autocomplete..");
+				showSuggestion();
+			}
+			else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+			{
+				hidePopup();
+				CR.hidePopup();
+			}
 			if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
 				//area.setCaretPosition(area.getText().length()	- getCaretAddidtion() - 1);
 				String textTyped=area.getText();
 				//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
-
-
 				tryToRecognize();
 				indicateErrors();
 				// Spell error detection
@@ -708,8 +713,6 @@ public class LiveAuto extends JFrame {
 			if (separator.contains(e.getKeyChar()))
 				indicateErrors();
 		}
-
- 
 		public void keyPressed(KeyEvent e) {	//  executed 1st
 			
 			changed = true;		//variable to enable save
@@ -721,7 +724,7 @@ public class LiveAuto extends JFrame {
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
 			if (spellCheckOn && !acsuggestion) // !acsuggestion bcoz, type positive, then pos"\n" it autocorrects it to pus, but doesnt take the autocomplete suggestion into account..
 			{
-				//System.out.println("Entered speell on with c="+e.getKeyChar()+"|");
+				System.out.println("Entered speell on with c="+e.getKeyChar()+"|");
 				if(Character.isAlphabetic(e.getKeyChar()))
 				{
 					//wordBeingTyped=true;
@@ -732,7 +735,7 @@ public class LiveAuto extends JFrame {
 				{
 					area.revalidate();
 					enterSeparatorpressed=false;
-					System.out.println("Entered spellcking mechanism");
+					//System.out.println("Entered spellcking mechanism");
 					//wordBeingTyped=false;
 					separatorUsed = e.getKeyChar();
 					//System.out.println("Entered spellcking mechanism: sep="+separatorUsed+"|");;
@@ -756,7 +759,7 @@ public class LiveAuto extends JFrame {
 						if(obj.nWords.containsKey(word.toLowerCase()))
 						{
 							spellSuggestion=true;
-							acsuggestion=true;
+							//acsuggestion=true;
 							hidePopup();
 						}
 						else
@@ -810,7 +813,7 @@ public class LiveAuto extends JFrame {
 													// e.getKeyChar() == ',' ||
 													// e.getKeyChar() == ';')
 			{
-				System.out.println("IN AUTOCOMPLETE");
+				//System.out.println("IN AUTOCOMPLETE");
 				tryToRecognize();
 				int caret = area.getCaretPosition() - 1;
 				String typed = area.getText();
@@ -820,11 +823,11 @@ public class LiveAuto extends JFrame {
 					lastWord = typed.charAt(caret) + lastWord;
 					caret--;
 				}
-				System.out.println("LastWord= "+lastWord);
+				//System.out.println("LastWord= "+lastWord);
 				if (lastWord.length() > 7 && !Completable.contains(lastWord)
 						&& obj.nWords.containsKey(lastWord))
 					Completable.add(lastWord);
-				System.out.println("Completable List= "+Completable);
+				//System.out.println("Completable List= "+Completable);
 			}
 			prevChar = e.getKeyChar();
 		}
@@ -832,70 +835,13 @@ public class LiveAuto extends JFrame {
 
 	public void tryToRecognize() // -- Context Recognizer
 	{
-		new CRBkground(area).execute();
-		/*if (CR.getSentenceCount() > 1) // If he has typed more than 2 sentences
-		{
-			try {
-				CR.recognizer();
-
-			} catch (BadLocationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		} else
-			CR.hidePopup();*/
+		new CRBkground(area,CR).execute();
 	}
 
 	public void indicateErrors() {
 		if (spellCheckOn && !acsuggestion) {
 			
-			new UnderlineBkground(area, obj, separator).execute();
-			
-			/*int i;
-			String textTyped=area.getText().toLowerCase();
-			String word="";
-			//int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
-			//System.out.println("------------------IN INDICATE---------------");
-			//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
-			//System.out.println("TYPEDTEXT:"+textTyped);
-			for(i=0;i<textTyped.length();i++)
-	        {
-				char c=textTyped.charAt(i);
-				if(separator.contains(c)||c=='\n'||Character.isWhitespace(c)||Character.isSpace(c))
-	        	{
-	        		if(i>0&&separator.contains(textTyped.charAt(i-1))) continue;
-	        		if(c=='\n'&&word=="") 
-	        		{
-	        			//caretAddidtion++;
-	        	//		System.out.println("CARETINC--------------------------");
-	        		}
-	        		//System.out.println("IN SEPARATOR TRUE:"+c+"|");
-	        		if (word.length() > 1 && !isNumber(word))
-	        		{
-	        		//	System.out.println("WORD:"+word+"|");
-	    					
-	    					if(!obj.nWords.containsKey(word))
-	    					{
-	    					//	System.out.println("WORD:"+word+" NOT PRESENT");   					
-	    				//		System.out.println("TO HIGHLIGHT:  i="+i+" len="+word.length()+" word="+word);
-	    						//Highlight from indexOfWord to indexOfWord+word.length
-	    						Highlighter.HighlightPainter painter = new UnderlineHighlighter.UnderlineHighlightPainter(Color.red);
-	    						Highlighter highlighter = area.getHighlighter();
-	    						try {
-									//highlighter.addHighlight(i-caretAddidtion-word.length(),i-caretAddidtion, painter);
-	    							highlighter.addHighlight(i-word.length(),i, painter);
-								} catch (BadLocationException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-	    					}
-	    			}
-	        		word="";
-	        	}
-	        	else 
-	        		word=word+c;
-	        }
-		*/
+			new UnderlineBkground(area, obj, separator).execute();	
 		}
 	}
 

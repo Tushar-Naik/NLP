@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
 public class CRBkground extends SwingWorker<Integer, Integer>
@@ -8,7 +10,7 @@ public class CRBkground extends SwingWorker<Integer, Integer>
 	NewSpellChecker obj;
 	ArrayList<Character> separator = null; // for listening to every word
 	ContextRec CR;
-	public CRBkground( JTextArea a) {
+	public CRBkground( JTextArea a, ContextRec c) {
 		// TODO Auto-generated constructor stub
 		area=a;
 		CR = new ContextRec(area);
