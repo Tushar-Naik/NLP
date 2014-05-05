@@ -169,7 +169,7 @@ public class NewSpellChecker {
 		
 		NewSpellChecker obj=new NewSpellChecker("count_big.txt");
 		System.out.println("Enter the string:");
-		String s="ilovfrance";
+		String s="asd";
 		BufferedReader BR=new BufferedReader(new InputStreamReader(System.in));
 		/*String stmt=BR.readLine();
 		String seg[]=stmt.split(" ");
