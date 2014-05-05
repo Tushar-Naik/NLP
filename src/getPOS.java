@@ -18,7 +18,7 @@ public class getPOS
 public static String getMaxPOS(String word)
 {
 	ArrayList<String> list=w.POSdict.get(word);
-	
+	//System.out.println(list);
 	String currentMax = null; 
 	int maxCount = 0;
 	String current = null;
@@ -42,6 +42,7 @@ public static String getMaxPOS(String word)
 	    }
 	}
 	
+	//System.out.println(currentMax);
 	if(currentMax==null)
 		return current;
 	return currentMax;
@@ -69,8 +70,8 @@ public static String getMaxPOS(String word)
 	{
 		getPOS g=new getPOS();
 		try {
-			System.out.println("this");
-			g.outputPOS("this");
+			System.out.println("I");
+			g.outputPOS("I");
 			for(String x:posArray)
 				System.out.println(x);
 			

@@ -30,7 +30,8 @@ public class CalcSentScore {
     	{
     		
     	}*/
-    	boolean isTriGram=true;
+    	//boolean isTriGram=true;
+    	sent=sent.toLowerCase();
     	String s[]=sent.split(" ");
     	float totalScore=(float) 0.0;
     	float pWGivenT=1;
@@ -40,8 +41,10 @@ public class CalcSentScore {
     		//System.out.println(s[i]);
     		String currentPos=gpos.getMaxPOS(s[i]);
     		
+    		
     		pWGivenT=pWGivenT*(twwp.wordWithPosCount.get(s[i]+"/"+currentPos))/twc.posCount.get(currentPos);
-    		isTriGram=true;
+    		System.out.println(s[i]+","+currentPos+"="+pWGivenT+"="+twwp.wordWithPosCount.get(s[i]+"/"+currentPos)+"/"+twc.posCount.get(currentPos));
+    		//isTriGram=true;
     		if(i<2)
     		{
     			continue;
@@ -53,8 +56,10 @@ public class CalcSentScore {
     		ArrayList<String> posBiGram = new ArrayList<String>();
     		posBiGram.add(gpos.getMaxPOS(s[i-2]));
     		posBiGram.add(gpos.getMaxPOS(s[i-1]));
-    		//System.out.println(posTriGram.toString());
-    		//System.out.println(tbt.trigramCount.get(posTriGram.toString()));
+    		System.out.print(posTriGram.toString()+"=");
+    		System.out.println(tbt.trigramCount.get(posTriGram.toString()));
+    		System.out.print(posBiGram.toString()+"=");
+    		System.out.println(tbt.trigramCount.get(posBiGram.toString()));
     		pTtriGram=pTtriGram*(tbt.trigramCount.get(posTriGram.toString())==null?1:tbt.trigramCount.get(posTriGram.toString()))/(tbt.bigramCount.get(posBiGram.toString())==null?1:tbt.bigramCount.get(posBiGram.toString()));
 
     		//System.out.println(pTtriGram+" "+pWGivenT);
@@ -64,10 +69,11 @@ public class CalcSentScore {
     }
     public static void main(String args[])
     {
-    	String a="this is their job";
-    	String b="this is there job";
+    	String a="Your a human being";
+    	String b="You're a human being";
     	CalcSentScore c=new CalcSentScore();
     	System.out.println("sent1 score="+c.BestSentence(a));
+    	System.out.println("----------------------------------------------------------");
     	System.out.println("sent2 score="+c.BestSentence(b));
     }
     
