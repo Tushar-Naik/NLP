@@ -158,8 +158,10 @@ public class LiveAuto extends JFrame {
 		cut.setToolTipText("Cut");
 		cut.setIcon(new ImageIcon("cut.gif"));
 		cop.setText(null);
+		cop.setToolTipText("Copy");
 		cop.setIcon(new ImageIcon("copy.gif"));
 		pas.setText(null);
+		pas.setToolTipText("Paste");
 		pas.setIcon(new ImageIcon("paste.gif"));
 
 		spellOn.setSelected(true);
@@ -662,9 +664,12 @@ public class LiveAuto extends JFrame {
 		@Override
 		public void keyTyped(KeyEvent e) { 	//  executed 2nd
 			//System.out.println("in keyTyped="+area.getText()+"|");
-			//System.out.println("INENTER:"+e.getKeyChar()+"|");
+			System.out.println("INENTER:"+e.getKeyChar()+"|");
+			System.out.println("Enter pressed:"+acsuggestion+spellSuggestion+enterSeparatorpressed);
 			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed && list!=null) 
-			 list.requestFocus();
+			 {
+				list.requestFocus();
+			 }
 			/*{
 				System.out.println("IN Enter");
 				if (insertSelection()) {
@@ -720,6 +725,10 @@ public class LiveAuto extends JFrame {
 				indicateErrors();
 				// Spell error detection
 			}
+			if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_F) 
+			{
+				find.requestFocus();
+			}
 			if (separator.contains(e.getKeyChar()))
 				indicateErrors();
 		}
@@ -751,6 +760,7 @@ public class LiveAuto extends JFrame {
 					//System.out.println("Entered spellcking mechanism: sep="+separatorUsed+"|");;
 					if(separatorUsed=='\n'&& spellSuggestion==false)
 						enterSeparatorpressed=true;			// to solve the enter"\n" bug
+					
 					String typedText;
 					String word, correctedWord;
 					int i = 0;
@@ -764,9 +774,16 @@ public class LiveAuto extends JFrame {
 						// != '.'&& typedText.charAt(i) != '\n')
 						word = typedText.charAt(i--) + word;
 					System.out.println("word="+word);
+					boolean autoCap=false;
 					if(!isNumber(word))
 					{
-						if(obj.nWords.containsKey(word.toLowerCase()))
+						System.out.println("w"+word.length()+"t"+typedText.length());
+						if(word.length()==typedText.length()||typedText.charAt(typedText.length()-1-word.length())==' '&&typedText.charAt(typedText.length()-2-word.length())=='.')
+						{
+							word=Character.toUpperCase(word.charAt(0))+word.substring(1);
+							autoCap=true;
+						}
+						if(obj.nWords.containsKey(word.toLowerCase())&&!autoCap)
 						{
 							spellSuggestion=true;
 							//acsuggestion=true;
@@ -849,8 +866,8 @@ public class LiveAuto extends JFrame {
 	}
 
 	public void indicateErrors() {
-		if (spellCheckOn && !acsuggestion) {
-			
+		if (spellCheckOn && !acsuggestion) 
+		{	
 			new UnderlineBkground(area, obj, separator).execute();	
 		}
 	}
