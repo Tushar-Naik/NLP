@@ -96,12 +96,10 @@ public class trainWordCount {
 			e1.printStackTrace();
 		}
 		
-		for(Entry<String,Integer>e:t.posCount.entrySet())
-			System.out.println(e.getKey()+"="+e.getValue());
-		//System.out.println(wordCount.get("forensic"));
-		String x="a/b";
-		String y=x.split("/")[1];
-		System.out.println(y);
+		//for(Entry<String,Integer>e:t.posCount.entrySet())
+			//System.out.println(e.getKey()+"="+e.getValue());
+		System.out.println("desert"+ t.wordCount.get("forensic"));
+		//System.out.println("dessert"+ t.wordCount.get("dessert"));
 				
 	}
 
