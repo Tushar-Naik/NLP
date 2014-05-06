@@ -81,10 +81,11 @@ public class FindImplementation {
 							textTyped=c+textTyped.substring(1);
 							highlight();
 						}
-						else{
-						char c=Character.toUpperCase(s);
-						textTyped=c+textTyped.substring(1);
-						highlight();
+						else
+						{
+							char c=Character.toUpperCase(s);
+							textTyped=c+textTyped.substring(1);
+							highlight();
 						}
 						textTyped=textTyped.toUpperCase();
 						highlight();

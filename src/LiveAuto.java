@@ -730,7 +730,7 @@ public class LiveAuto extends JFrame {
 			SaveAs.setEnabled(true);
 			rightClickListOn=false;
 			//System.out.println("in keyPress="+area.getText()+"|");
-
+			System.out.println(obj.nWords2.size());
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
 			if (spellCheckOn && !acsuggestion) // !acsuggestion bcoz, type positive, then pos"\n" it autocorrects it to pus, but doesnt take the autocomplete suggestion into account..
 			{

@@ -5,14 +5,42 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.*;
-public class NewSpellChecker {
+public class NewSpellChecker implements java.io.Serializable {
 
 	int wordcase=0;		//0:all lower case,  1:1st caps  2: All caps
-	public final static HashMap<String, Long> nWords = new HashMap<String, Long>();
-	static float wordCount;		// to keep track of probability, frequency
+	public static HashMap<String, Long> nWords;//= new HashMap<String, Long>();
+	public static HashMap<String, Long> nWords2;//= new HashMap<String, Long>();
+	static float wordCount=0;		// to keep track of probability, frequency
+	
 	public NewSpellChecker(String file) throws IOException 
 	{
-		wordCount=0;
+		try
+	      {
+	         FileInputStream fileIn = new FileInputStream("nwords.ser");
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         nWords = (HashMap<String, Long>) in.readObject();
+	         in.close();
+	         fileIn.close();
+	         FileInputStream fileIn2 = new FileInputStream("nwords2.ser");
+	         ObjectInputStream in2 = new ObjectInputStream(fileIn2);
+	         nWords2 = (HashMap<String, Long>) in2.readObject();
+	         in2.close();
+	         fileIn2.close();
+	      }catch(IOException i)
+	      {
+	         i.printStackTrace();
+	         return;
+	      }catch(ClassNotFoundException c)
+	      {
+	         System.out.println("Employee class not found");
+	         c.printStackTrace();
+	         return;
+	      }
+		wordCount=nWords2.get("andromen");
+		//System.out.println(nWords2);
+		//new LoadingBkground(nWords, nWords2, wordCount, file).execute();
+
+		/*wordCount=0;
 		BufferedReader in = new BufferedReader(new FileReader(file));
 		//take in word by word, put it into hash map, with the count
 		for(String temp = ""; temp != null; temp = in.readLine())
@@ -21,10 +49,30 @@ public class NewSpellChecker {
 			if(a.length>1)
 			{
 				wordCount+=Long.parseLong(a[1]);;
-				nWords.put(a[0], Long.parseLong(a[1]));
+				nWords2.put(a[0], Long.parseLong(a[1]));
 			}
 		}
 		in.close();
+		Scanner s=new Scanner(new File("merged"));
+		while(s.hasNext())
+		{
+			String obj=s.next();
+			String currentWord=obj.split("/")[0].toLowerCase();
+			
+			
+			if(nWords.containsKey(currentWord))
+			{
+				Long count=nWords.get(currentWord);
+				count++;
+				nWords.remove(currentWord);
+				nWords.put(currentWord, count);
+			}
+			else
+				nWords.put(currentWord, (long) 1);
+		}
+		
+		*/
+
 	}
 	String caseHandler(String w)
 	{
@@ -112,6 +160,7 @@ public class NewSpellChecker {
 		// lastly check for segmentation
 		String splitString="";
 		if(word.length()>15) return word;
+		
 		List<String> endResult=segment(word);
 		for(String s:endResult)
 			splitString=splitString+s+" ";
@@ -130,10 +179,10 @@ public class NewSpellChecker {
 	}
 	public static double getProbability(String word)
 	{
-		if(nWords.containsKey(word))
-			return (nWords.get(word)/wordCount);
+		if(nWords2.containsKey(word))
+			return (nWords2.get(word)/wordCount);
 		else
-			return(1/(wordCount*(Math.pow(10,word.length()-2))));			// ??
+			return  (1/(wordCount*(Math.pow(10,word.length()-2))));			// ??
 	}	
 	public static double wordSequenceFitness(List<String> words)
 	{
@@ -169,13 +218,13 @@ public class NewSpellChecker {
 		
 		NewSpellChecker obj=new NewSpellChecker("count_big.txt");
 		System.out.println("Enter the string:");
-		String s="asd";
+		String s="iloveindia";
 		BufferedReader BR=new BufferedReader(new InputStreamReader(System.in));
 		/*String stmt=BR.readLine();
 		String seg[]=stmt.split(" ");
 		for(String s:seg)*/
 		System.out.println((s+" : ")+obj.correct(s)+"\nLIST");
-		List<String> endResult=segment("ilovefrance");
+		List<String> endResult=segment("iloveindia");
 		for(String s1:endResult)
 			System.out.print(s1+' ');
 		
