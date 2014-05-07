@@ -150,6 +150,13 @@ public class ContextRec {
 				}
 			});
 	        
+	        SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					textarea.requestFocusInWindow();
+				}
+			});
+	        
         }
         catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -208,7 +215,7 @@ public class ContextRec {
 		while(i<textTyped.length() && textTyped.charAt(i)=='\n') i++;
 		while(i<textTyped.length() && !(textTyped.charAt(i)=='\n')) heading+=textTyped.charAt(i++);
 		// this part is for heading extraction
-		if(i<textTyped.length() && textTyped.charAt(i)=='\n' && heading.length()>2)
+		if(i<textTyped.length() && textTyped.charAt(i)=='\n' && textTyped.charAt(i+1)=='\n' && heading.length()>2)
 		{
 			System.out.println("HEADING FOUND:"+heading);
 			query=heading;

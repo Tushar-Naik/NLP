@@ -39,7 +39,7 @@ public class UnderlineBkground extends SwingWorker<Integer, Integer>
 		String textTyped=area.getText().toLowerCase();
 		String word="";
 		//int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
-		//System.out.println("------------------IN INDICATE---------------");
+		System.out.println("------------------IN INDICATE---------------");
 		//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+textTyped.length()+textTyped);
 		//System.out.println("TYPEDTEXT:"+textTyped);
 		for(i=0;i<textTyped.length();i++)
