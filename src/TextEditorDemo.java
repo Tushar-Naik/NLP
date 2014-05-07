@@ -1,7 +1,6 @@
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Document;
 import javax.swing.text.Highlighter;
 import java.awt.*;
 import java.awt.event.*;
@@ -12,10 +11,17 @@ public class TextEditorDemo implements ActionListener,KeyListener{
 	int j,n,i=0;
 	JTextArea t;
 	JFrame f;
-	JTextField t1,t2,t3;
+	JLabel settings;
+	JTextField t1,t2,t3,dialogText;
+	JSeparator sep=new JSeparator();
+	JSeparator sep1=new JSeparator();
 	JPanel p;
-	JPanel p1;
-	JButton b,b1;
+	
+	JPanel p1,p2;
+	JButton b,b1,b2;
+	JRadioButton j1,j2;
+	JCheckBox auto,spell,context;
+	ButtonGroup bg1;
 	String str;
 	Highlighter h;
 public static void main(String[] args){
@@ -26,18 +32,52 @@ public void go()
 {
   f=new JFrame();	
   p=new JPanel();
+  settings=new JLabel("General settings");
   p1=new JPanel();
+  p2=new JPanel(new GridLayout(0,2));
   p.setVisible(true);
   p1.setVisible(true);
+  p2.setVisible(true);
   b=new JButton("Advanced..");
   b.addActionListener(new ActionListener(){
-
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		JOptionPane.showConfirmDialog(f, p,"Advanced options",JOptionPane.DEFAULT_OPTION);
 		
 	}});
   b1=new JButton("Replace");
+  b2=new JButton("Options");
+  p2.add(new JLabel("Features"));
+  p2.add(new JLabel());p2.add(new JLabel());p2.add(new JLabel());
+  auto=new JCheckBox("Auto Complete",true);
+  p2.add(auto);
+  p2.add(new JLabel("Helps to complete words automatically"));
+  spell=new JCheckBox("Spell Check",true);
+  p2.add(spell);
+  p2.add(new JLabel("Checks for spelling mistakes and corrects"));
+  context=new JCheckBox("Context Recognition",true);
+  p2.add(context);
+  p2.add(new JLabel("Recognizes what your typing"));
+  bg1=new ButtonGroup();
+  j1=new JRadioButton("",true);
+  bg1.add(j1);
+  j2=new JRadioButton();
+  bg1.add(j2);
+  dialogText=new JTextField(10);
+  p2.add(new JLabel());p2.add(new JLabel());
+  p2.add(sep);
+  p2.add(sep1);
+  p2.add(settings);
+  p2.add(new JLabel());
+  p2.add(new JLabel());
+  p2.add(new JLabel());
+  p2.add(new JLabel("Enter"));
+  dialogText.setText("5");
+  p2.add(dialogText);
+  p2.add(new JLabel("SUHAS"));
+  p2.add(j1);
+  p2.add(new JLabel("TUSHAR"));
+  p2.add(j2);
   t1=new JTextField(10);
   t2=new JTextField(10);
   t3=new JTextField(10);
@@ -54,12 +94,29 @@ public void go()
 	p.add(BorderLayout.NORTH,t1);
 	p.add(new JLabel("Replace"));
 	p.add(BorderLayout.CENTER,t2);
-	p.add(b1);
-	//p.add(new JLabel("Enter word to be replaced"),BoxLayout.X_AXIS);
+	p.add(b1);	
 	p1.add(new JLabel("Find"));
 	p1.add(t3);
 	p1.add(b);
-	//p1.add(BorderLayout.CENTER,new JLabel("For replacing use advanced options"));
+	p1.add(b2);
+	b2.addActionListener(new ActionListener(){
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			int cancel=JOptionPane.showConfirmDialog(f, p2,"Options",JOptionPane.OK_CANCEL_OPTION);
+			if(cancel == JOptionPane.CANCEL_OPTION){
+				if(auto.isSelected()==false)auto.setSelected(true);
+				if(spell.isSelected()==false)spell.setSelected(true);
+				if(context.isSelected()==false)context.setSelected(true);
+				if(dialogText.getText()!="5")dialogText.setText("5");
+				if(j1.isSelected()==false)j1.setSelected(true);
+			}
+			if(cancel == JOptionPane.OK_OPTION)
+			{
+				
+			}
+		}});
+	
 	t3.addKeyListener(new KeyListener(){
 
 		@Override
@@ -100,9 +157,9 @@ public void go()
 					
 				}
 			}
-
 		@Override
-		public void keyTyped(KeyEvent e) {}});
+		public void keyTyped(KeyEvent arg0) {			
+		}});
 f.add(BorderLayout.EAST,p1);
 }
 

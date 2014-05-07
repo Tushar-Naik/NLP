@@ -36,6 +36,7 @@ public class UnderlineBkground extends SwingWorker<Integer, Integer>
     {
         // Do a time-consuming task.
     	int i;
+    	area.getHighlighter().removeAllHighlights();
 		String textTyped=area.getText().toLowerCase();
 		String word="";
 		//int caretAddidtion=0;			// to equate caret position and area.getText().length() (new line takes 2 caret positions)
