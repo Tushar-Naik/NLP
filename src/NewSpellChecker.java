@@ -89,7 +89,7 @@ public class NewSpellChecker implements java.io.Serializable {
 	}
 	String makeCamelcase(String w)
 	{
-		System.out.println("Camel case entered. Word will be:"+Character.toUpperCase(w.charAt(0))+w.substring(1));
+		//System.out.println("Camel case entered. Word will be:"+Character.toUpperCase(w.charAt(0))+w.substring(1));
 		return Character.toUpperCase(w.charAt(0))+w.substring(1);
 	}
 	String makeUppercase(String w)
@@ -121,7 +121,7 @@ public class NewSpellChecker implements java.io.Serializable {
 		return null;
 	}
 	HashMap<Long, String> candidates=null;
-	public final String correct(String word) 
+	public final String correct(String word, Options O) 
 	{
 		int c;
 		wordcase=0;
@@ -158,6 +158,7 @@ public class NewSpellChecker implements java.io.Serializable {
 			return candidates.get(Collections.max(candidates.keySet()));
 		
 		// lastly check for segmentation
+		if(!O.segmentationOn) return word;
 		String splitString="";
 		if(word.length()>15) return word;
 		
@@ -223,7 +224,7 @@ public class NewSpellChecker implements java.io.Serializable {
 		/*String stmt=BR.readLine();
 		String seg[]=stmt.split(" ");
 		for(String s:seg)*/
-		System.out.println((s+" : ")+obj.correct(s)+"\nLIST");
+		System.out.println((s+" : ")+obj.correct(s,null)+"\nLIST");
 		List<String> endResult=segment("iloveindia");
 		for(String s1:endResult)
 			System.out.print(s1+' ');

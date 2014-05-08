@@ -15,6 +15,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -46,14 +47,15 @@ public class LiveAuto extends JFrame {
 	private JFrame frame = new JFrame();
 	public JTextArea area = new JTextArea();
 	public JTextField find= new JTextField(10);
-	public JButton advancedFind = new JButton("Advanced");
+	public JButton advancedFind = new JButton("Advanced Find");
+	public JButton optionButton = new JButton("Options");
 	private JFileChooser dialog = new JFileChooser(
 			System.getProperty("user.dir")); // used to provide GUI to navigate FileSystem
 	private String currentFile = "Untitled";
 	JToolBar tool;
 	// button variables- to keep track of toggle buttons
-	boolean spellCheckOn;
-	boolean autoCompleteOn;
+	//boolean spellCheckOn;
+	//boolean autoCompleteOn;
 	String beforeWordText="";
 	String afterWordText="";
 	private boolean changed = false; // to differentiate between save and saveAs
@@ -74,11 +76,12 @@ public class LiveAuto extends JFrame {
 	NewSpellChecker obj;
 	ContextRec CR;
 	FindImplementation FI;
+	Options O;
 
 	public LiveAuto() throws IOException {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		spellCheckOn = true;
-		autoCompleteOn = true;
+		//spellCheckOn = true;
+		//autoCompleteOn = true;
 		prevChar = ' ';//
 		Completable = new ArrayList<String>();
 		char sep[] = { ' ', ',', '\n', '\t', ';', '.', '?', '(', ')', '!', '@',
@@ -87,6 +90,7 @@ public class LiveAuto extends JFrame {
 		for (char c : sep)
 			separator.add(c);
 		obj = new NewSpellChecker("count_big.txt");
+		O=new Options(area);
 		area.setFont(new Font("Segoe UI", 0, 14));
 		
 		// add(scroll, BorderLayout.CENTER);
@@ -119,41 +123,22 @@ public class LiveAuto extends JFrame {
 		tool.add(Open);
 		tool.add(Save);
 		tool.addSeparator();
+		tool.addSeparator();
 		JButton cut = tool.add(Cut), cop = tool.add(Copy), pas = tool
 				.add(Paste);
 		tool.addSeparator();
-		final JToggleButton spellOn = new JToggleButton("Spell Check");
-		spellOn.addItemListener(new ItemListener() {
-
+		optionButton.addActionListener(new ActionListener() {
+			
 			@Override
-			public void itemStateChanged(ItemEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					spellCheckOn = true;
-					spellOn.setText("Spell Checker ON");
-				} else {
-					spellCheckOn = false;
-					spellOn.setText("Spell Checker OFF");
-				}
-				area.requestFocus();
+				O.makeDialog();
+				indicateErrors();
+				tryToRecognize();
+				
 			}
 		});
-		final JToggleButton completeOn = new JToggleButton("Auto Complete");
-		completeOn.addItemListener(new ItemListener() {
-
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					autoCompleteOn = true;
-					completeOn.setText("Auto Complete ON");
-				} else {
-					autoCompleteOn = false;
-					completeOn.setText("Auto Complete OFF");
-				}
-				area.requestFocus();
-			}
-		});
+		tool.add(optionButton);
 		cut.setText(null);
 		cut.setToolTipText("Cut");
 		cut.setIcon(new ImageIcon("cut.gif"));
@@ -164,11 +149,13 @@ public class LiveAuto extends JFrame {
 		pas.setToolTipText("Paste");
 		pas.setIcon(new ImageIcon("paste.gif"));
 
-		spellOn.setSelected(true);
-		completeOn.setSelected(true);
-		tool.add(spellOn);
-		tool.add(completeOn);
+		//spellOn.setSelected(true);
+		//completeOn.setSelected(true);
+		//tool.add(spellOn);
+		//tool.add(completeOn);
 		//tool.addSeparator(new Dimension(50, 50));
+		tool.addSeparator();
+		tool.addSeparator();
 		tool.add(find);
 		tool.add(advancedFind);
 		Save.setEnabled(false);
@@ -226,34 +213,39 @@ public class LiveAuto extends JFrame {
 					// if the word is error free, "nothing doing" else, show candidates
 					if(!obj.nWords.containsKey(word))
 					{
-						String correctWord=obj.correct(word);
+						String correctWord=obj.correct(word,O);
 						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
 
-							ArrayList<String> cand = new ArrayList<String>(
-									obj.candidates.values());
+							ArrayList<String> cand = new ArrayList<String>(obj.candidates.values());
+							cand.add("Add to dictionary");
 							String allCandidates[] = new String[cand.size()];
 							allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
 							candidateList.setListData(allCandidates);
 							//jlsc.setViewportView(candidateList);
 							//jlsc.setVisible(true);
 							// Add listener to JList
+							final String wordAdd=word;
 							candidateList.addListSelectionListener(new ListSelectionListener() {
 
 										@Override
 										public void valueChanged(ListSelectionEvent arg0) {
 											// change the previous word
 											if (candidateList.getSelectedValue() != null && rightClickListOn) {
-												 
+												int caretPos=area.getCaretPosition(); 
 												String wordSelected = candidateList.getSelectedValue();
 												System.out.println("you selected: "+ wordSelected);
 												System.out.println("Bef:"+beforeWordText+" after:"+afterWordText+" word:"+wordSelected);
-												area.setText(beforeWordText + wordSelected	+ afterWordText);
+												if(candidateList.getSelectedValue()=="Add to dictionary")
+												{
+													obj.nWords.put(wordAdd, (long)1);
+												}
+												else
+												 area.setText(beforeWordText + wordSelected	+ afterWordText);
 												area.requestFocus();
-												area.setCaretPosition(area.getText().length());
-												System.out.println("CARET+"+area.getCaretPosition()+" Len="+area.getText().length());
+												area.setCaretPosition(caretPos);
+												//System.out.println("CARET+"+area.getCaretPosition()+" Len="+area.getText().length());
 												indicateErrors();
 												hidePopup();
-												
 												//System.out.println("Hide called:"+236);
 											}
 										}
@@ -288,6 +280,7 @@ public class LiveAuto extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				// TODO Auto-generated method stub
+				
 			}
 		});
 
@@ -295,6 +288,8 @@ public class LiveAuto extends JFrame {
 		initPanel();
 		CR = new ContextRec(area);
 		frame.setSize(800, 700);
+		frame.setLocationRelativeTo(null);
+		frame.setResizable(false);
 		frame.setVisible(true);
 	}
 
@@ -521,20 +516,23 @@ public class LiveAuto extends JFrame {
 				if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion))// && !enterSeparatorpressed) 
 					{
 					//System.out.println("IN Enter");
-					if (insertSelection()) {
-						e.consume();
+					if (insertSelection()) 
+					 {
+						/*e.consume();
+						 
 						final int position = textarea.getCaretPosition();
 						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									//System.out.println("IN remove:pos="+position);
-									textarea.getDocument().remove(position - 1, 1);
-								} catch (BadLocationException e) {
-									e.printStackTrace();
-								}
-							}
-						});
+						@Override
+						public void run() {
+						try {
+								//System.out.println("IN remove:pos="+position);
+								textarea.getDocument().remove(position - 1, 1);
+							} catch (BadLocationException e) {
+							e.printStackTrace();
+							}	
+						}
+						});*/
+						hidePopup();
 					}
 				}
 			}
@@ -555,19 +553,30 @@ public class LiveAuto extends JFrame {
 
 	public boolean insertSelection() {
 		if (list.getSelectedValue() != null) {
-			
+			System.out.println("----------------IN INSERT-----------");
 			final String selectedSuggestion = ((String) list.getSelectedValue()); // add  only the remaining part of the word to text area.
 			//System.out.println("selectedSugg:"+selectedSuggestion);
-			int bp=textarea.getText().length()-1;
+			int caretPos= textarea.getCaretPosition();
+			int bp=textarea.getCaretPosition()-1;
 			String TT=textarea.getText();
-			//System.out.println("TT:"+TT+"|");
-			//System.out.println("bp before:"+bp);
-			while(bp>=0 && !Character.isAlphabetic(TT.charAt(bp))) bp--;
+			System.out.println("caretPos="+caretPos+"TTlen="+TT.length());
+			String afterText=TT.substring(bp+1);
+			System.out.println("TT:"+TT+"|");
+			System.out.println("after:"+afterText);
+			while(bp>=0 && !Character.isAlphabetic(TT.charAt(bp))){separatorUsed=TT.charAt(bp); bp--;}
 			while(bp>=0 && !separator.contains(TT.charAt(bp))) bp--;
-			//System.out.println("bp after:"+bp);
+			System.out.println("bp after:"+bp);
 			String prevText=TT.substring(0,bp+1);
-			//System.out.println("prev Text:"+prevText);
-			textarea.setText(prevText+selectedSuggestion+"  ");
+			System.out.println("prev Text:"+prevText);
+			textarea.setText(prevText+selectedSuggestion+separatorUsed+afterText);		//extra space which will be consumed
+			System.out.println("Settext="+textarea.getText());
+			try{
+				textarea.setCaretPosition(prevText.length()+selectedSuggestion.length()+1);
+			}
+			catch(Exception e)
+			{
+				textarea.setCaretPosition(textarea.getText().length());
+			}
 			acsuggestion=true;
 			spellSuggestion=true;
 			hidePopup();
@@ -664,12 +673,7 @@ public class LiveAuto extends JFrame {
 		@Override
 		public void keyTyped(KeyEvent e) { 	//  executed 2nd
 			//System.out.println("in keyTyped="+area.getText()+"|");
-			System.out.println("INENTER:"+e.getKeyChar()+"|");
-			System.out.println("Enter pressed:"+acsuggestion+spellSuggestion+enterSeparatorpressed);
-			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& !enterSeparatorpressed && list!=null) 
-			 {
-				list.requestFocus();
-			 }
+			
 			/*{
 				System.out.println("IN Enter");
 				if (insertSelection()) {
@@ -692,23 +696,15 @@ public class LiveAuto extends JFrame {
 
 		public void keyReleased(KeyEvent e) { 	//  executed 3rd
 			//System.out.println("in keyRel="+area.getText()+"|"+" spellsugges="+spellSuggestion);
-			if (e.getKeyCode() == KeyEvent.VK_DOWN && (acsuggestion||spellSuggestion)) 
-			{
-				moveDown();
-				System.out.println("LIST:"+list);
-			} 
-			else if (e.getKeyCode() == KeyEvent.VK_UP && (acsuggestion||spellSuggestion)) 
-			{		
-				moveUp();	
-			} 
-			else if (Character.isWhitespace(e.getKeyChar())) 
+			if (Character.isWhitespace(e.getKeyChar())) 
 			{
 				indicateErrors();
 				if(acsuggestion)
-					hidePopup();
-				//System.out.println("Hide called:"+598);
+				{	hidePopup();
+					//System.out.println("Hide called:"+598);
+				}
 			} 
-			else if (Completable != null && Completable.size() > 0) {
+			else if (Completable != null && Completable.size() > 0 && O.autoCompleteOn) {
 					//System.out.println("trying autocomplete..");
 				showSuggestion();
 			}
@@ -738,17 +734,39 @@ public class LiveAuto extends JFrame {
 			Save.setEnabled(true);
 			SaveAs.setEnabled(true);
 			rightClickListOn=false;
+			if (e.getKeyChar() == KeyEvent.VK_ENTER && (acsuggestion||spellSuggestion)&& list!=null)// &&!enterSeparatorpressed 
+			 {
+				e.consume();
+				System.out.println("INENTER:"+e.getKeyChar()+"|");
+				System.out.println("Enter pressed:"+acsuggestion+spellSuggestion+enterSeparatorpressed);
+				
+				list.requestFocus();
+			 }
+			else if (e.getKeyCode() == KeyEvent.VK_DOWN && (acsuggestion||spellSuggestion)&& list!=null) 
+			{
+				e.consume();
+				list.requestFocus();
+				//moveDown();
+				System.out.println("LIST:"+list);
+			} 
+			else if (e.getKeyCode() == KeyEvent.VK_UP && (acsuggestion||spellSuggestion)&& list!=null) 
+			{		
+				e.consume();
+				list.requestFocus();
+				//moveUp();	
+			} 
+				
 			//System.out.println("in keyPress="+area.getText()+"|");
-			System.out.println(obj.nWords2.size());
+			//System.out.println(obj.nWords2.size());
 			// ------------------------------- LIVE SPELL CHECKER CORRECTER ------------------------------------
-			if (spellCheckOn && !acsuggestion) // !acsuggestion bcoz, type positive, then pos"\n" it autocorrects it to pus, but doesnt take the autocomplete suggestion into account..
+			else if (O.spellCheckOn && !acsuggestion) // !acsuggestion bcoz, type positive, then pos"\n" it autocorrects it to pus, but doesnt take the autocomplete suggestion into account..
 			{
 				System.out.println("Entered speell on with c="+e.getKeyChar()+"|");
 				if(Character.isAlphabetic(e.getKeyChar()))
 				{
 					//wordBeingTyped=true;
 					hidePopup();
-					System.out.println("Hide called:"+730);
+					//System.out.println("Hide called:"+730);
 				}
 				else if (separator.contains(e.getKeyChar()))
 				{
@@ -766,33 +784,37 @@ public class LiveAuto extends JFrame {
 					int i = 0;
 					word = "";
 					typedText = area.getText(); // http://docs.oracle.com/javase/tutorial/uiswing/components/editorpane.html
-					System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+typedText.length());
+					//System.out.println("CARET:"+area.getCaretPosition()+" LENGHT:"+typedText.length());
 					i = area.getCaretPosition()-1;		// ERRORMARK : for \t or \n. use ( till it reaches an alphabet, i--)
 					//while (i >= 0 && separator.contains(typedText.charAt(i))) i--;
 					while (i >= 0 && !separator.contains(typedText.charAt(i)))
 						// && typedText.charAt(i) != ' '&& typedText.charAt(i)
 						// != '.'&& typedText.charAt(i) != '\n')
 						word = typedText.charAt(i--) + word;
-					System.out.println("word="+word);
+					//System.out.println("word="+word);
 					boolean autoCap=false;
 					if(!isNumber(word))
 					{
-						System.out.println("w"+word.length()+"t"+typedText.length());
-						if(word.length()==typedText.length()||typedText.charAt(typedText.length()-1-word.length())==' '&&typedText.charAt(typedText.length()-2-word.length())=='.')
+						//System.out.println("w"+word.length()+"t"+typedText.length());
+						if(word.length()==typedText.length()||typedText.charAt(typedText.length()-1-word.length())=='\n'||(typedText.charAt(typedText.length()-1-word.length())==' '&&typedText.charAt(typedText.length()-2-word.length())=='.'))
 						{
-							word=Character.toUpperCase(word.charAt(0))+word.substring(1);
+							if(word.length()>0)
+							{
+								word=Character.toUpperCase(word.charAt(0))+word.substring(1);
+							}
 							autoCap=true;
 						}
-						if(obj.nWords.containsKey(word.toLowerCase())&&!autoCap)
+						if(obj.nWords.containsKey(word.toLowerCase())&& !autoCap && spellSuggestion==false)
 						{
 							spellSuggestion=true;
 							//acsuggestion=true;
 							hidePopup();
+							//System.out.println("Hide at 790");
 						}
 						else
 						{
 							if (word.length() > 1) {
-								correctedWord = obj.correct(word);
+								correctedWord = obj.correct(word,O);
 								try {
 									area.getDocument().remove(area.getCaretPosition() - (word.length()),(word.length()));
 									area.getDocument().insertString(
@@ -816,7 +838,7 @@ public class LiveAuto extends JFrame {
 									ArrayList<String> cand = new ArrayList<String>(
 										obj.candidates.values());
 									String allCandidates[] = new String[cand.size()];
-									System.out.println("candidates:"+cand);
+									//System.out.println("candidates:"+cand);
 									allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
 									candidateList.setListData(allCandidates);
 									
@@ -832,6 +854,8 @@ public class LiveAuto extends JFrame {
 						}
 					}
 				}
+				else
+					hidePopup();
 			}
 			// -------------------- Add Words for Autocomplete------------------------------------------
 
@@ -862,14 +886,17 @@ public class LiveAuto extends JFrame {
 
 	public void tryToRecognize() // -- Context Recognizer
 	{
-		new CRBkground(area,CR).execute();
+		if(CR.popupMenu!=null && popupMenu==null && O.contextRecOn)		//to remove multiple links, and to show spellSuggestions and not override with this popup
+		 new CRBkground(area,CR).execute();
 	}
 
 	public void indicateErrors() {
-		if (spellCheckOn && !acsuggestion) 
+		if (O.underLineOn && !acsuggestion) 
 		{	
 			new UnderlineBkground(area, obj, separator).execute();	
 		}
+		else
+	    	area.getHighlighter().removeAllHighlights();
 	}
 
 	public static void main(String args[]) {

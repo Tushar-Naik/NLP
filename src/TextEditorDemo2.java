@@ -6,22 +6,17 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-public class TextEditorDemo implements ActionListener,KeyListener{
+public class TextEditorDemo2 implements ActionListener,KeyListener{
 	int []ar=new int[1000000];
 	int j,n,i=0;
 	JTextArea t;
 	JFrame f;
-	JLabel settings;
-	JTextField t1,t2,t3,dialogText;
-	JSeparator sep=new JSeparator();
-	JSeparator sep1=new JSeparator();
+	JTextField t1,t2,t3;
 	JPanel p;
-	
 	JPanel p1,p2;
 	JButton b,b1,b2;
-	JRadioButton j1,j2;
-	JCheckBox auto,spell,context;
-	ButtonGroup bg1;
+	JRadioButton j1,j2,j3,j4;
+	ButtonGroup bg1,bg2;
 	String str;
 	Highlighter h;
 public static void main(String[] args){
@@ -32,9 +27,8 @@ public void go()
 {
   f=new JFrame();	
   p=new JPanel();
-  settings=new JLabel("General settings");
   p1=new JPanel();
-  p2=new JPanel(new GridLayout(0,2));
+  p2=new JPanel(new GridLayout(0,3));
   p.setVisible(true);
   p1.setVisible(true);
   p2.setVisible(true);
@@ -47,37 +41,22 @@ public void go()
 	}});
   b1=new JButton("Replace");
   b2=new JButton("Options");
-  p2.add(new JLabel("Features"));
-  p2.add(new JLabel());p2.add(new JLabel());p2.add(new JLabel());
-  auto=new JCheckBox("Auto Complete",true);
-  p2.add(auto);
-  p2.add(new JLabel("Helps to complete words automatically"));
-  spell=new JCheckBox("Spell Check",true);
-  p2.add(spell);
-  p2.add(new JLabel("Checks for spelling mistakes and corrects"));
-  context=new JCheckBox("Context Recognition",true);
-  p2.add(context);
-  p2.add(new JLabel("Recognizes what your typing"));
   bg1=new ButtonGroup();
-  j1=new JRadioButton("",true);
+  j1=new JRadioButton("Yes");
+  j2=new JRadioButton("No");
   bg1.add(j1);
-  j2=new JRadioButton();
   bg1.add(j2);
-  dialogText=new JTextField(10);
-  p2.add(new JLabel());p2.add(new JLabel());
-  p2.add(sep);
-  p2.add(sep1);
-  p2.add(settings);
-  p2.add(new JLabel());
-  p2.add(new JLabel());
-  p2.add(new JLabel());
-  p2.add(new JLabel("Enter"));
-  dialogText.setText("5");
-  p2.add(dialogText);
-  p2.add(new JLabel("SUHAS"));
+  bg2=new ButtonGroup();
+  j3=new JRadioButton("Yes");
+  j4=new JRadioButton("No");
+  bg2.add(j3);
+  bg2.add(j4);
+  p2.add(new JLabel("Spell check:"));
   p2.add(j1);
-  p2.add(new JLabel("TUSHAR"));
   p2.add(j2);
+  p2.add(new JLabel("Auto Complete:"));
+  p2.add(j3);
+  p2.add(j4);
   t1=new JTextField(10);
   t2=new JTextField(10);
   t3=new JTextField(10);
@@ -103,18 +82,7 @@ public void go()
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			int cancel=JOptionPane.showConfirmDialog(f, p2,"Options",JOptionPane.OK_CANCEL_OPTION);
-			if(cancel == JOptionPane.CANCEL_OPTION){
-				if(auto.isSelected()==false)auto.setSelected(true);
-				if(spell.isSelected()==false)spell.setSelected(true);
-				if(context.isSelected()==false)context.setSelected(true);
-				if(dialogText.getText()!="5")dialogText.setText("5");
-				if(j1.isSelected()==false)j1.setSelected(true);
-			}
-			if(cancel == JOptionPane.OK_OPTION)
-			{
-				
-			}
+			JOptionPane.showConfirmDialog(f, p2,"Options",JOptionPane.DEFAULT_OPTION);		
 		}});
 	
 	t3.addKeyListener(new KeyListener(){
