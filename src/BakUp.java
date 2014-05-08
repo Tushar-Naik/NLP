@@ -442,7 +442,7 @@ public class BakUp extends JFrame {
 					while (i >= 0)
 						remText = typedText.charAt(i--) + remText;*/
 					if (word.length() > 1) {
-						correctedWord = obj.correct(word);
+						correctedWord = obj.correct(word,new Options(new JTextArea()));
 						try {
 							System.out.println("Caret Pos Before :"+area.getCaretPosition()+" Worlen+1: "+(word.length()+1));
 							area.getDocument().remove(area.getCaretPosition()-(word.length()), (word.length()));

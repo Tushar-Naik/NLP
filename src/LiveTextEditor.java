@@ -228,7 +228,7 @@ public class LiveTextEditor extends JFrame {
 						remText = typedText.charAt(i--) + remText;
 					if (word.length() > 1) {
 						String actualWord=word;
-						word = obj.correct(word);
+						word = obj.correct(word, null);
 						area.setText(remText + word);
 						if (obj.candidates != null) {// Concept to show candidate words as list
 

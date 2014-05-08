@@ -77,6 +77,7 @@ public class LiveAuto extends JFrame {
 	ContextRec CR;
 	FindImplementation FI;
 	Options O;
+	JPanel statusPanel=new JPanel();
 
 	public LiveAuto() throws IOException {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -172,6 +173,11 @@ public class LiveAuto extends JFrame {
 		//area.setBounds(0,0,200,200);
 		JScrollPane scroll = new JScrollPane(area);
 		frame.add(scroll, BorderLayout.CENTER);
+		
+		/*statusPanel=new JPanel();
+		statusPanel.add(new JLabel("hi"));
+		frame.add(statusPanel, BorderLayout.SOUTH);
+		*/
 		area.requestFocus();
 		area.setWrapStyleWord(true) ;
 		// option of right click on the misspelt word
@@ -864,7 +870,7 @@ public class LiveAuto extends JFrame {
 													// e.getKeyChar() == ',' ||
 													// e.getKeyChar() == ';')
 			{
-				//System.out.println("IN AUTOCOMPLETE");
+				System.out.println("IN AUTOCOMPLETE");
 				tryToRecognize();
 				int caret = area.getCaretPosition() - 1;
 				String typed = area.getText();
@@ -874,6 +880,7 @@ public class LiveAuto extends JFrame {
 					lastWord = typed.charAt(caret) + lastWord;
 					caret--;
 				}
+				lastWord=lastWord.toLowerCase();
 				//System.out.println("LastWord= "+lastWord);
 				if (lastWord.length() > 7 && !Completable.contains(lastWord)
 						&& obj.nWords.containsKey(lastWord))

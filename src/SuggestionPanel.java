@@ -12,7 +12,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
-
+/**
+ * @author Tushar Naik, Vamanan TS, Suhas
+ * 
+ *  a simple imlementation of a JPopup, with global 
+ */
 public class SuggestionPanel {
         public JList list;
         public JPopupMenu popupMenu;

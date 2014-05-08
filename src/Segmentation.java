@@ -3,6 +3,11 @@ import java.util.*;
 import java.util.regex.*;
 class Segmentation
 {
+	/**
+	 * @author Tushar Naik, Vamanan TS, Suhas
+	 * 
+	 * basically, implement segmentation recursively, which takes in a text without space, and tries to split it.
+	 */
 	static String dictionary[] = {"mobile","samsung","sam","sung","man","mango",
 		    "icecream","and","go","i","like","ice","cream","a"};	
 
@@ -43,7 +48,7 @@ class Segmentation
 			if(i==n){
 				if(!nWords.containsKey(prefix))
 				{
-					String prefix2=obj.correct(prefix);
+					String prefix2=obj.correct(prefix,null);
 					if(prefix!=prefix2)
 					{
 						result+=prefix2;

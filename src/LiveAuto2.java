@@ -27,6 +27,10 @@ import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.text.Highlighter;
 public class LiveAuto2 extends JFrame {
 
 	/** A text editor using java that implements, (1) a live contextual Spell Checker-Corrector using that
@@ -190,7 +194,7 @@ public class LiveAuto2 extends JFrame {
 					// if the word is error free, "nothing doing" else, show candidates
 					if(!obj.nWords.containsKey(word))
 					{
-						String correctWord=obj.correct(word);
+						String correctWord=obj.correct(word, null);
 						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
 
 							ArrayList<String> cand = new ArrayList<String>(
@@ -568,7 +572,7 @@ public class LiveAuto2 extends JFrame {
 					else
 					{						
 					if (word.length() > 1) {
-						correctedWord = obj.correct(word);
+						correctedWord = obj.correct(word,null);
 						try {
 							area.getDocument().remove(area.getCaretPosition()-(word.length()), (word.length()));
 							area.getDocument().insertString(area.getCaretPosition(), correctedWord,null);
