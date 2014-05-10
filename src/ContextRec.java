@@ -57,10 +57,12 @@ public class ContextRec {
 	String query="";
 	GoogleSearch gs;
 	public static HashMap<String, Long> TF;	//Term Frequency
+	NewSpellChecker obj;
 	
-	public ContextRec(JTextArea area)			//  constructor to initialize all variables
+	public ContextRec(JTextArea area, NewSpellChecker o)			//  constructor to initialize all variables
 	{
 		char sep[]={' ',',','\n','\t',';','.','?','(',')','!','@','#','-','_','[','{',']','}',':'};
+		obj=o;
 		separator=new ArrayList<Character>(); for(char c:sep)separator.add(c);
 		sentenceCount=0;
 		textarea=area;
@@ -204,6 +206,7 @@ public class ContextRec {
 		return index;
 	}
 	
+	
 	public int topicExtraction() {
 		// TODO Auto-generated method stub
 		
@@ -278,8 +281,29 @@ public class ContextRec {
     			}        			
     		}
 		}
-		//System.out.println(TF.toString());
-		
+		System.out.println(TF.toString());
+		String maxWord="";
+		float max=0;
+		for(java.util.Map.Entry<String, Long> e:TF.entrySet())
+		{
+			//System.out.println(e.getKey());
+			if(e.getValue()<3 && obj.nWords.containsKey(e.getKey())) continue;
+			float f;
+			try
+			{
+				f=(float) ((float)TF.get(e.getKey())*(1/(float)obj.nWords.get(e.getKey())));
+			}
+			catch(NullPointerException ex)
+			{
+				f=(float) ((float)TF.get(e.getKey()));
+			}
+			System.out.println(e.getKey()+"  "+f);
+			if(f>max) {
+				max=f;
+				maxWord=e.getKey();
+			}
+		}
+		System.out.println("------------------- "+maxWord+max);
         /*for(i=0;i<textTyped.length();i++)
         {
         	char c=textTyped.charAt(i);

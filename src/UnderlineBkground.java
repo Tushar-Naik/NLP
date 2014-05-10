@@ -18,7 +18,7 @@ public class UnderlineBkground extends SwingWorker<Integer, Integer>
 		area=a;
 		obj=ob;
 		separator=sep;
-		CR = new ContextRec(area);
+		CR = new ContextRec(area,obj);
 	}
 	public boolean isNumber(String w)
 	{

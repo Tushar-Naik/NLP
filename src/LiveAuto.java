@@ -174,10 +174,11 @@ public class LiveAuto extends JFrame {
 		JScrollPane scroll = new JScrollPane(area);
 		frame.add(scroll, BorderLayout.CENTER);
 		
-		/*statusPanel=new JPanel();
+		statusPanel=new JPanel(new BorderLayout());
 		statusPanel.add(new JLabel("hi"));
-		frame.add(statusPanel, BorderLayout.SOUTH);
-		*/
+		frame.add(statusPanel);
+		
+		
 		area.requestFocus();
 		area.setWrapStyleWord(true) ;
 		// option of right click on the misspelt word
@@ -292,7 +293,7 @@ public class LiveAuto extends JFrame {
 
 		FI= new FindImplementation(find, advancedFind, area);
 		initPanel();
-		CR = new ContextRec(area);
+		CR = new ContextRec(area,obj);
 		frame.setSize(800, 700);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
