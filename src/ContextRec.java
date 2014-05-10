@@ -43,7 +43,7 @@ public class ContextRec {
 	boolean popupBeingShown=false;		// variable to let the popup persist on the screen
 	ArrayList<Character> separator=null;
 	JPopupMenu popupMenu;
-/*0*/	String letter[]={"to","from","dear","sir","madam","sub","subject","thank you","yours","faithfully","sincerely"};
+/*0*/	String letter[]={"to","from","dear","sir","madam","sub","subject","thank you","yours","faithfully","sincerely",""};
 /*1*/	String resume[]={"objective","education","institute","school","engineering","bachelor","skill","achievements","experience","projects","academics","intern","declaration"};
 /*2*/	String code[]={"int","float","class","main","public","<","</"};
 	String essay[]={"the","of"};
@@ -166,7 +166,8 @@ public class ContextRec {
 			e.printStackTrace();
 		}
 		
-        
+        popupMenu.pack();
+        popupMenu.setSize(70, 100);
         popupMenu.show(textarea, 500, 300);							//  Right bottom of screen
         textarea.requestFocus();
 	}
@@ -185,7 +186,7 @@ public class ContextRec {
 		boolean hitsExist=false;
 		for(i=0;i<n;i++)
 		{
-			if(hitCount[i]>2)				// 0 or 1 or 2 ----- CHECK THIS based on survey, study, analysis of documents
+			if(hitCount[i]>3)				// 0 or 1 or 2 ----- CHECK THIS based on survey, study, analysis of documents
 			{
 				hitsExist=true;
 				break;
@@ -220,12 +221,18 @@ public class ContextRec {
 		// this part is for heading extraction
 		if(i<textTyped.length() && textTyped.charAt(i)=='\n' && textTyped.charAt(i+1)=='\n' && heading.length()>2)
 		{
-			System.out.println("HEADING FOUND:"+heading);
-			query=heading;
-			return 4;
+			System.out.println(heading+heading.split(" ").length);
+			if(heading.split(" ").length<20)
+			{
+				System.out.println("HEADING FOUND:"+heading);
+				query=heading;
+				return 4;
+			}
 		}
+		
 		// this part is for topic extraction
-		String maxFreqWord="";
+		
+		/*String maxFreqWord="";
 		Entry<String,Long> maxEntry = null;	
 		for(Entry<String,Long> entry : TF.entrySet()) {
 			if (maxEntry == null || entry.getValue() > maxEntry.getValue()) {
@@ -241,8 +248,48 @@ public class ContextRec {
 			System.out.println("KEYWORD FOUND:"+maxFreqWord);
 			query=maxFreqWord;
 			return 4;
+		}*/
+		System.out.println(TF.toString());
+		String maxWord="";
+		HashMap<String,Float> keywords= new HashMap<String, Float>();
+		float max=0;
+		for(Entry<String, Long> e:TF.entrySet())
+		{
+			//System.out.println(e.getKey());
+			if(e.getValue()<3 && obj.nWords.containsKey(e.getKey())) continue;
+			float f;
+			try
+			{
+				f=(float) ((float)TF.get(e.getKey())*(1/(float)obj.nWords.get(e.getKey())));
+			}
+			catch(NullPointerException ex)
+			{
+				f=(float) ((float)TF.get(e.getKey()));
+			}
+			System.out.println(e.getKey()+"  "+f);
+			keywords.put(e.getKey(), f);
+			if(f>max) {
+				max=f;
+				maxWord=e.getKey();
+			}
 		}
-			
+		System.out.println("------------------- "+maxWord+max);
+		query=maxWord+",";
+		for(int k=0;k<3;k++)
+		{
+			Entry<String,Float> maxEntry = null;
+
+			for(Entry<String,Float> entry : keywords.entrySet()) {
+			    if (maxEntry == null || entry.getValue() > maxEntry.getValue()) {
+			        maxEntry = entry;
+			    }
+			}
+			query=query+" "+maxEntry.getKey();
+			keywords.remove(maxEntry.getKey());
+		}
+		if(getSentenceCount()>5)
+				return 4;
+		
 		return -1;
 	}
 
@@ -253,7 +300,7 @@ public class ContextRec {
 		if(contextRecUsed)
 		{
 			hidePopup();
-			return;
+			//return;
 		}		
 		//textarea.updateUI();
 		System.out.println("TRY TO RECOGNIZE\nSentence count= "+sentenceCount);
@@ -281,29 +328,7 @@ public class ContextRec {
     			}        			
     		}
 		}
-		System.out.println(TF.toString());
-		String maxWord="";
-		float max=0;
-		for(java.util.Map.Entry<String, Long> e:TF.entrySet())
-		{
-			//System.out.println(e.getKey());
-			if(e.getValue()<3 && obj.nWords.containsKey(e.getKey())) continue;
-			float f;
-			try
-			{
-				f=(float) ((float)TF.get(e.getKey())*(1/(float)obj.nWords.get(e.getKey())));
-			}
-			catch(NullPointerException ex)
-			{
-				f=(float) ((float)TF.get(e.getKey()));
-			}
-			System.out.println(e.getKey()+"  "+f);
-			if(f>max) {
-				max=f;
-				maxWord=e.getKey();
-			}
-		}
-		System.out.println("------------------- "+maxWord+max);
+		
         /*for(i=0;i<textTyped.length();i++)
         {
         	char c=textTyped.charAt(i);

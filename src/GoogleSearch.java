@@ -18,14 +18,23 @@ public class GoogleSearch {
 	int total;
 	public GoogleSearch(String q) throws Exception,URISyntaxException
 	{
-		address = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=";
+		address = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&start=6&q=";
+		//address = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=";
 		query = q;
 		charset = "UTF-8";
 		address.replaceAll("<b>", "");
 		url = new URL(address + URLEncoder.encode(query, charset));
 		reader = new InputStreamReader(url.openStream(), charset);
 		results = new Gson().fromJson(reader, GoogleResults.class);
-		total = results.getResponseData().getResults().size();
+		try
+		{
+			total = results.getResponseData().getResults().size();
+		}
+		catch(Exception e)
+		{
+			System.out.println("NULL POINTER"+e.getMessage());
+			throw e;
+		}
 	}	
 }
 

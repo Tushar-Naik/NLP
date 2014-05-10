@@ -32,6 +32,7 @@ public class Options {
 	JCheckBox auto,spell,context,segment,under;
 	ButtonGroup bg1;
 	JButton restore;
+	JButton restoreDict;
 	
 	
 	
@@ -43,7 +44,8 @@ public class Options {
 		contextRecOn=true;
 		segmentationOn=true;
 		area =a;
-		restore=new JButton("Restore to defaults");
+		restore=new JButton("Restore preferences to defaults");
+		restoreDict=new JButton("Restore the Dictionary");
 	}
 	public void makeDialog()
 	{
@@ -105,11 +107,26 @@ public class Options {
 				
 			}
 		});
+		restoreDict.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+				try {
+					new CreateSerDict();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 		//restore.setBorderPainted(false); 
         //restore.setContentAreaFilled(false); 
 		p.add(new JLabel());p.add(new JLabel());p.add(new JLabel());
 		p.add(new JLabel());p.add(new JLabel());p.add(new JLabel());
 		p.add(restore);
+		p.add(restoreDict);
 		p.add(new JLabel());p.add(new JLabel());p.add(new JLabel());
 		p.add(new JLabel());p.add(new JLabel());p.add(new JLabel());
 		p.add(new JLabel());p.add(new JLabel());p.add(new JLabel());

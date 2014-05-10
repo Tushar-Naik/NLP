@@ -172,12 +172,16 @@ public class LiveAuto extends JFrame {
 		area.setLineWrap(true);
 		//area.setBounds(0,0,200,200);
 		JScrollPane scroll = new JScrollPane(area);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+ 
 		frame.add(scroll, BorderLayout.CENTER);
-		
-		statusPanel=new JPanel(new BorderLayout());
+
+		/*statusPanel=new JPanel(new BorderLayout());
 		statusPanel.add(new JLabel("hi"));
 		frame.add(statusPanel);
-		
+		*/
 		
 		area.requestFocus();
 		area.setWrapStyleWord(true) ;
@@ -187,7 +191,7 @@ public class LiveAuto extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				if(SwingUtilities.isRightMouseButton(e))
 				{
-					System.out.println("____________  IN RIGHT CLICK _________");
+					System.out.println("____________  IN RIGHT CLICK  _________");
 					//get the caret position of the right click
 				    Point pt = new Point(e.getX(), e.getY());
 				    int pos = area.viewToModel(pt);
@@ -244,7 +248,8 @@ public class LiveAuto extends JFrame {
 												System.out.println("Bef:"+beforeWordText+" after:"+afterWordText+" word:"+wordSelected);
 												if(candidateList.getSelectedValue()=="Add to dictionary")
 												{
-													obj.nWords.put(wordAdd, (long)1);
+													System.out.println("tried to add="+wordAdd);
+													addToDict(wordAdd);
 												}
 												else
 												 area.setText(beforeWordText + wordSelected	+ afterWordText);
@@ -266,7 +271,43 @@ public class LiveAuto extends JFrame {
 							});
 						}
 						else
+						{
 							SuggestionPanels(area, pos, "", location, 2, null);
+							ArrayList<String> cand = new ArrayList<String>(obj.candidates.values());
+							cand.add("Add to dictionary");
+							String allCandidates[] = new String[cand.size()];
+							allCandidates = cand.toArray(allCandidates); // convert ArrayLIst to String[]
+							candidateList.setListData(allCandidates);
+							//jlsc.setViewportView(candidateList);
+							//jlsc.setVisible(true);
+							// Add listener to JList
+							final String wordAdd=word;
+							candidateList.addListSelectionListener(new ListSelectionListener() {
+
+										@Override
+										public void valueChanged(ListSelectionEvent arg0) {
+											// change the previous word
+											if (candidateList.getSelectedValue() != null && rightClickListOn) {
+												int caretPos=area.getCaretPosition(); 
+												String wordSelected = candidateList.getSelectedValue();
+												System.out.println("you selected: "+ wordSelected);
+												System.out.println("Bef:"+beforeWordText+" after:"+afterWordText+" word:"+wordSelected);
+												if(candidateList.getSelectedValue()=="Add to dictionary")
+												{
+													addToDict(wordAdd);
+												}
+												else
+												 area.setText(beforeWordText + wordSelected	+ afterWordText);
+												area.requestFocus();
+												area.setCaretPosition(caretPos);
+												//System.out.println("CARET+"+area.getCaretPosition()+" Len="+area.getText().length());
+												indicateErrors();
+												hidePopup();
+												//System.out.println("Hide called:"+236);
+											}
+										}
+									});
+						}
 							
 					}
 			     }
@@ -385,6 +426,25 @@ public class LiveAuto extends JFrame {
 		}
 	}
 
+	private void addToDict(String wordAdd) 
+	{
+		wordAdd=wordAdd.toLowerCase();
+		obj.nWords.put(wordAdd, (long)1);
+		obj.nWords2.put(wordAdd, (long)1);
+		try {
+			new CreateSerDict(obj);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			obj = new NewSpellChecker("count_big.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	// ----------------------------- Suggestion Panel ------------------------------------------
 	public JList list;
 	public JPopupMenu popupMenu;
@@ -715,10 +775,11 @@ public class LiveAuto extends JFrame {
 					//System.out.println("trying autocomplete..");
 				showSuggestion();
 			}
-			else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+			else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE|| e.getKeyCode()== KeyEvent.VK_ESCAPE)
 			{
 				hidePopup();
 				CR.hidePopup();
+				CR.popupMenu.setVisible(false);
 			}
 			if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
 				//area.setCaretPosition(area.getText().length()	- getCaretAddidtion() - 1);
@@ -894,12 +955,18 @@ public class LiveAuto extends JFrame {
 
 	public void tryToRecognize() // -- Context Recognizer
 	{
-		if(CR.popupMenu!=null && popupMenu==null && O.contextRecOn)		//to remove multiple links, and to show spellSuggestions and not override with this popup
-		 new CRBkground(area,CR).execute();
+		System.out.print("Try to rec function"+popupMenu);
+		if(CR.popupMenu!=null  && O.contextRecOn)		//to remove multiple links, and to show spellSuggestions and not override with this popup
+		 {
+			System.out.println("Came here");
+			new CRBkground(area,CR).execute();
+		 }
+		indicateErrors();
 	}
 
-	public void indicateErrors() {
-		if (O.underLineOn && !acsuggestion) 
+	public void indicateErrors() 
+	{
+		if (O.underLineOn && !acsuggestion && CR.popupBeingShown==false) 
 		{	
 			new UnderlineBkground(area, obj, separator).execute();	
 		}

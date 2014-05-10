@@ -36,6 +36,7 @@ public class FindImplementation {
 		adv=jb;
 		area=a;
 		h=area.getHighlighter();
+		h.removeAllHighlights();
 		p=new JPanel();
 		p.add(new JLabel("Find"));
 		p.add(BorderLayout.NORTH,findInD);
@@ -56,7 +57,7 @@ public class FindImplementation {
 
 				 textTyped=find.getText().toString();
 				 h.removeAllHighlights();
-				  if(e.getKeyCode()==KeyEvent.VK_BACK_SPACE){
+				  if(e.getKeyCode()==KeyEvent.VK_BACK_SPACE || find.getText().length()==0){
 				    	if(textTyped.isEmpty()){
 				           h.removeHighlight(area);
 				       	}

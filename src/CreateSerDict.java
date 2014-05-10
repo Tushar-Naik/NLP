@@ -88,6 +88,37 @@ public class CreateSerDict  {
 	      }
 		
 	}
+	public CreateSerDict(NewSpellChecker obj) throws IOException
+	{
+		try
+	      {
+	         FileOutputStream fileOut = new FileOutputStream("nwords.ser");
+	         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	         out.writeObject(obj.nWords);
+	         out.close();
+	         fileOut.close();
+
+	         obj.nWords2.put("andromen",(long) obj.wordCount);		//total word count saved in a unique key
+	         FileOutputStream fileOut2 = new FileOutputStream("nwords2.ser");
+	         ObjectOutputStream out2 = new ObjectOutputStream(fileOut2);
+	         out2.writeObject(obj.nWords2);
+	         out2.close();
+	         fileOut2.close();
+	         
+	         System.out.printf("Serialized data (edited dictionary) is saved in nwords.ser and nwords2.ser");
+	        /* ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
+	         out = new ObjectOutputStream(bos) ;
+	         out.writeObject(obj);
+	         out.close();
+
+	         // Get the bytes of the serialized object
+	         byte[] buf = bos.toByteArray();*/
+	         
+	      }catch(IOException i)
+	      {
+	          i.printStackTrace();
+	      }
+	}
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
