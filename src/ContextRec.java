@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -46,7 +47,7 @@ public class ContextRec {
 	ArrayList<Character> separator=null;
 	JPopupMenu popupMenu;
 /*0*/	String letter[]={"to","from","dear","sir","madam","sub","subject","thank you","yours","faithfully","sincerely",""};
-/*1*/	String resume[]={"objective","education","institute","school","engineering","bachelor","skill","achievements","experience","projects","academics","intern","declaration"};
+/*1*/	String resume[]={"objective","education","institute","school","engineering","bachelor","skill","achievements","experience","projects","academics","intern","declaration","resume"};
 /*2*/	String code[]={"int","float","class","main","public","<","</"};
 	String essay[]={"the","of"};
 	String poem[]={"",""};
@@ -107,6 +108,11 @@ public class ContextRec {
 				String a[]=title.split("<b>|</b>");
 				title=title.replace("<b>","");
 				title=title.replace("</b>","");
+				title=title.replaceAll("&amp;","&");
+				title=title.replaceAll("&quot;","\"");
+				title=title.replaceAll("&#39;","'");
+
+				
 				final String hyperlink=gs.results.getResponseData().getResults().get(i).getUrl();
 				System.out.println("Title: " + title);
 				System.out.println("URL: " + hyperlink + "\n");
@@ -182,6 +188,19 @@ public class ContextRec {
 			if(typedText.charAt(i)=='.')//||typedText.charAt(i)=='\n')&&typedText.charAt(i+1)==' ')
 				sentenceCount++;
 		return sentenceCount;
+	}
+	//VAMANAN ADDED THIS:
+	public static boolean isNumeric(String str)  
+	{  
+	  try  
+	  {  
+	    double d = Double.parseDouble(str);  
+	  }  
+	  catch(NumberFormatException nfe)  
+	  {  
+	    return false;  
+	  }  
+	  return true;  
 	}
 	public int getMax()					//   return the index of the tag with the maximum hits
 	{
@@ -259,7 +278,8 @@ public class ContextRec {
 		for(Entry<String, Long> e:TF.entrySet())
 		{
 			//System.out.println(e.getKey());
-			if(e.getValue()<3 && obj.nWords.containsKey(e.getKey())) continue;
+			//$$$$$$**** MADE CHANGE HERE:ADDED CODE TO PREVENT CHECKING OUT NUMBERS****$$$$
+			if(e.getValue()<3 && obj.nWords.containsKey(e.getKey())|| isNumeric(e.getKey())) continue;
 			float f;
 			try
 			{
@@ -277,7 +297,8 @@ public class ContextRec {
 			}
 		}
 		System.out.println("------------------- "+maxWord+max);
-		query=maxWord+",";
+		query=maxWord;
+		//System.out.println("boom shakalaka query:"+query);
 		for(int k=0;k<3;k++)
 		{
 			Entry<String,Float> maxEntry = null;
@@ -287,7 +308,9 @@ public class ContextRec {
 			        maxEntry = entry;
 			    }
 			}
-			query=query+" "+maxEntry.getKey();
+			//System.out.println("MAX ENTRY YO"+maxEntry.getKey());
+			query=query+","+maxEntry.getKey();
+			//System.out.println("This is QUERYYYYYY:"+query);
 			keywords.remove(maxEntry.getKey());
 		}
 		if(getSentenceCount()>5)
@@ -381,7 +404,8 @@ public class ContextRec {
 		JLabel jLab;
 		String s="<html>Are you typing a resume?<br>Do you need some help?<br>Here are few quick search results from google</html>";
 		jLab=new JLabel(s);
-		jLab.setFont(new Font("Segoe UI", 0, 16));
+		query="how to write a resume";
+		//jLab.setFont(new Font("Segoe UI", 0, 16));
 		createPopup(jLab);
 	}
 	public void codeTheme()
@@ -393,9 +417,23 @@ public class ContextRec {
 		createPopup(jLab);
 	}
 	public void topicTheme()
-	{
+	{	// $$$$$VAMANAN WAS HERE*****$$$$
+		// now prints top keywords one below the other 
+		System.out.println("in topictheme");
 		JLabel jLab;
-		String s="<html>Are you typing something about \""+query+"\"?<br>Do you need some help?<br>Here are few quick search results from google</html>";
+		//String s="<html>Are you typing something about \""+query+"\"?<br>Do you need some help?<br>Here are few quick search results from google</html>";
+		String s="<html>Are you typing something about:<br>";
+		
+		String component[]=query.split(",");
+		//System.out.println("components yo:"+Arrays.toString(component));
+		for(int i=0;i<component.length;i++)
+		{
+			//System.out.println(component[i]);
+			s=s.concat(component[i]+"<br>");
+			
+		}
+		s=s.concat("<html>");
+		System.out.println(s);
 		jLab=new JLabel(s);
 		createPopup(jLab);
 	}
