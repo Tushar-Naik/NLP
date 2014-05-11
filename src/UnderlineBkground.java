@@ -12,13 +12,11 @@ public class UnderlineBkground extends SwingWorker<Integer, Integer>
 	JTextArea area;
 	NewSpellChecker obj;
 	ArrayList<Character> separator = null; // for listening to every word
-	ContextRec CR;
 	public UnderlineBkground( JTextArea a, NewSpellChecker ob, ArrayList<Character> sep) {
 		// TODO Auto-generated constructor stub
 		area=a;
 		obj=ob;
 		separator=sep;
-		CR = new ContextRec(area,obj);
 	}
 	public boolean isNumber(String w)
 	{
@@ -80,5 +78,6 @@ public class UnderlineBkground extends SwingWorker<Integer, Integer>
     protected void done()
     {
         System.out.println("DONE UNDERLINING-----------");
+    	//new UnderlineBkground(area, obj, separator).execute();
     }
 }

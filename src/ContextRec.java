@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -39,6 +40,7 @@ import org.omg.CORBA.portable.InputStream;
 public class ContextRec {
 	int sentenceCount;
 	JTextArea textarea;
+	JFrame frame;
 	boolean contextRecUsed=false;		// variable, to remove the popup when he has clicked it.
 	boolean popupBeingShown=false;		// variable to let the popup persist on the screen
 	ArrayList<Character> separator=null;
@@ -59,13 +61,14 @@ public class ContextRec {
 	public static HashMap<String, Long> TF;	//Term Frequency
 	NewSpellChecker obj;
 	
-	public ContextRec(JTextArea area, NewSpellChecker o)			//  constructor to initialize all variables
+	public ContextRec(JTextArea area, NewSpellChecker o, JFrame f)			//  constructor to initialize all variables
 	{
 		char sep[]={' ',',','\n','\t',';','.','?','(',')','!','@','#','-','_','[','{',']','}',':'};
 		obj=o;
 		separator=new ArrayList<Character>(); for(char c:sep)separator.add(c);
 		sentenceCount=0;
 		textarea=area;
+		frame=f;
 		popupMenu = new JPopupMenu();
 		for(int i=0;i<n;i++)					//  add the tags to the arrayList array.
 		{
@@ -168,7 +171,7 @@ public class ContextRec {
 		
         popupMenu.pack();
         popupMenu.setSize(70, 100);
-        popupMenu.show(textarea, 500, 300);							//  Right bottom of screen
+        popupMenu.show(frame, 700, 300);							//  Right bottom of screen
         textarea.requestFocus();
 	}
 	public int getSentenceCount()		//  returns the number of sentences typed

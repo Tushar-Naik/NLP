@@ -129,11 +129,11 @@ public class NewSpellChecker implements java.io.Serializable {
 		{
 			char ch=word.charAt(c);
 			if(	Character.isLowerCase(ch))
-				break;
+				break;			//Camel Case
 			wordcase=1;
 		}
 		if(c==word.length())
-			wordcase=2;
+			wordcase=2;		//All uppercase
 	
 		//System.out.println("WORD:"+word+" wordcase="+wordcase);
 		String word1=word.toLowerCase();			//*
@@ -183,7 +183,7 @@ public class NewSpellChecker implements java.io.Serializable {
 		if(nWords2.containsKey(word))
 			return (nWords2.get(word)/wordCount);
 		else
-			return  (1/(wordCount*(Math.pow(10,word.length()-2))));			// ??
+			return  (1/(wordCount*(Math.pow(10,word.length()-2))));			
 	}	
 	public static double wordSequenceFitness(List<String> words)
 	{

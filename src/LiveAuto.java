@@ -39,13 +39,13 @@ public class LiveAuto extends JFrame {
 	 * (1) a live contextual Spell  Checker-Corrector using that Bayesian model, n-grams and the noisy
 	 * channel model, (2) a Context Recognizer using probabilistic tagging, 
 	 * (3) an Auto Complete feature using a hash map, and 
-	 * (4) a Regex Find option.
+	 * (4) a Regex Find option.TO
 	 */
 
 	private static final long serialVersionUID = 1L;
 	// Editor Declarations
 	private JFrame frame = new JFrame();
-	public JTextArea area = new JTextArea();
+	public JTextArea area = new JTextArea(25,45);
 	public JTextField find= new JTextField(10);
 	public JButton advancedFind = new JButton("Advanced Find");
 	public JButton optionButton = new JButton("Options");
@@ -92,7 +92,7 @@ public class LiveAuto extends JFrame {
 			separator.add(c);
 		obj = new NewSpellChecker("count_big.txt");
 		O=new Options(area);
-		area.setFont(new Font("Segoe UI", 0, 14));
+		area.setFont(new Font("Segoe UI", 0, 16));
 		
 		// add(scroll, BorderLayout.CENTER);
 
@@ -167,13 +167,13 @@ public class LiveAuto extends JFrame {
 		area.addKeyListener(k1);
 		frame.setTitle(currentFile);
 		// area.setSize(300, 300);
-		area.setPreferredSize(new Dimension(500, 500));
+		//area.setPreferredSize(new Dimension(500, 500));
 		area.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
 		area.setLineWrap(true);
 		//area.setBounds(0,0,200,200);
 		JScrollPane scroll = new JScrollPane(area);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		//scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        //scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
  
 		frame.add(scroll, BorderLayout.CENTER);
@@ -334,7 +334,7 @@ public class LiveAuto extends JFrame {
 
 		FI= new FindImplementation(find, advancedFind, area);
 		initPanel();
-		CR = new ContextRec(area,obj);
+		CR = new ContextRec(area,obj,frame);
 		frame.setSize(800, 700);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
