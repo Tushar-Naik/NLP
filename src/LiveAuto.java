@@ -879,14 +879,13 @@ public class LiveAuto extends JFrame {
 							hidePopup();
 							//System.out.println("Hide at 790");
 						}
-						else
+						if(!obj.nWords.containsKey(word.toLowerCase()) || autoCap )
 						{
 							if (word.length() > 1) {
 								correctedWord = obj.correct(word,O);
 								try {
 									area.getDocument().remove(area.getCaretPosition() - (word.length()),(word.length()));
-									area.getDocument().insertString(
-											area.getCaretPosition(), correctedWord,null);
+									area.getDocument().insertString(area.getCaretPosition(), correctedWord,null);
 								} catch (BadLocationException e1) {
 							// 	TODO Auto-generated catch block
 									e1.printStackTrace();
