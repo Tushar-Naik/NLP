@@ -173,7 +173,36 @@ public class FindImplementation {
 				
 				textTyped=findInD.getText();
 				h.removeAllHighlights();
-				Pattern p=Pattern.compile(textTyped);
+				boolean b= capitalTest();
+				if(b==true){
+					replace();
+					textTyped=textTyped.toLowerCase();
+					replace();
+					char c=Character.toUpperCase(textTyped.charAt(0));
+					textTyped=c+textTyped.substring(1);
+					replace();
+				}
+				else{
+					replace();
+					char s=textTyped.charAt(0);
+					if(Character.isUpperCase(s))
+					{
+						char c=Character.toLowerCase(s);
+						textTyped=c+textTyped.substring(1);
+						replace();
+					}
+					else{
+					char c=Character.toUpperCase(s);
+					textTyped=c+textTyped.substring(1);
+					replace();
+					textTyped=textTyped.toUpperCase();
+					replace();
+					}
+					
+				}
+				findInD.setText("");
+				replaceInD.setText("");
+				/*Pattern p=Pattern.compile(textTyped);
 				String typo=area.getText();
 				Matcher m=p.matcher(typo);
 				while(m.find()){				
@@ -184,18 +213,47 @@ public class FindImplementation {
 				}	
 				System.out.println(j);
 				for(i=0;i<j;i++){
-				
+					
 					String before=area.getText().substring(0,ar[i]+i*(replaceInD.getText().length()-findInD.getText().length()));
 					String after=area.getText().substring(ar[i]+i*(replaceInD.getText().length()-findInD.getText().length())+findInD.getText().length());
 					area.setText(before+replaceInD.getText()+after);
 		
 				}
+						for(i=0;i<j;i++){
+					ar[i]=0;
+				}
 				
 				findInD.setText("");
 				replaceInD.setText("");
+				*/
 				
 			}
 		});
+		
+	}
+	public void replace()
+	{
+		i=0;
+		Pattern p=Pattern.compile(textTyped);
+		String typo=area.getText();
+		Matcher m=p.matcher(typo);
+		while(m.find()){				
+			ar[i]=m.start();
+			System.out.println(ar[i]);
+			j=i+1;
+			i++;
+		}	
+		System.out.println(j);
+		for(i=0;i<j;i++){
+			
+			String before=area.getText().substring(0,ar[i]+i*(replaceInD.getText().length()-findInD.getText().length()));
+			String after=area.getText().substring(ar[i]+i*(replaceInD.getText().length()-findInD.getText().length())+findInD.getText().length());
+			area.setText(before+replaceInD.getText()+after);
+
+		}
+				for(i=0;i<j;i++){
+			ar[i]=0;
+		}
 		
 	}
 

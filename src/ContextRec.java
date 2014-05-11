@@ -176,8 +176,8 @@ public class ContextRec {
 		}
 		
         popupMenu.pack();
-        popupMenu.setSize(70, 100);
-        popupMenu.show(frame, 700, 300);							//  Right bottom of screen
+        popupMenu.setSize(70, 70);
+        popupMenu.show(frame, 720, 300);							//  Right bottom of screen
         textarea.requestFocus();
 	}
 	public int getSentenceCount()		//  returns the number of sentences typed
@@ -235,6 +235,7 @@ public class ContextRec {
 		
 		// 1: Heading extraction.
 		// 2: Topic Extraction using Word Frequency Analysis
+		query="";
 		String textTyped=textarea.getText();
 		String heading="";
 		int i=0;
@@ -297,9 +298,9 @@ public class ContextRec {
 			}
 		}
 		System.out.println("------------------- "+maxWord+max);
-		query=maxWord;
+		//query=maxWord;
 		//System.out.println("boom shakalaka query:"+query);
-		for(int k=0;k<3;k++)
+		for(int k=0;k<4;k++)
 		{
 			Entry<String,Float> maxEntry = null;
 
@@ -309,7 +310,7 @@ public class ContextRec {
 			    }
 			}
 			//System.out.println("MAX ENTRY YO"+maxEntry.getKey());
-			query=query+","+maxEntry.getKey();
+			query=query+maxEntry.getKey()+",";
 			//System.out.println("This is QUERYYYYYY:"+query);
 			keywords.remove(maxEntry.getKey());
 		}

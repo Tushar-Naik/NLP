@@ -336,7 +336,7 @@ public class LiveAuto extends JFrame {
 		initPanel();
 		CR = new ContextRec(area,obj,frame);
 		frame.setSize(800, 700);
-		frame.setLocationRelativeTo(null);
+		//frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
 		frame.setVisible(true);
 	}
