@@ -107,14 +107,17 @@ public class NewSpellChecker implements java.io.Serializable {
 		ArrayList<String> result = new ArrayList<String>();  //list of all words within edit distance of 1
 		// deletion
 		for(int i=0; i < word.length(); ++i) result.add(word.substring(0, i) + word.substring(i+1));
+		
 		// transposition
 		for(int i=0; i < word.length()-1; ++i) result.add(word.substring(0, i) + word.substring(i+1, i+2) + word.substring(i, i+1) + word.substring(i+2));
+		
 		// substitution
 		for(int i=0; i < word.length(); ++i) for(char c='a'; c <= 'z'; ++c) result.add(word.substring(0, i) + String.valueOf(c) + word.substring(i+1));
+		
 		// addition
 		for(int i=0; i <= word.length(); ++i) for(char c='a'; c <= 'z'; ++c) result.add(word.substring(0, i) + String.valueOf(c) + word.substring(i));
-		return result;
 		
+		return result;
 	}
 	public final ArrayList<String> getCandidates(String word)
 	{

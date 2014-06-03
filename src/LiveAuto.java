@@ -227,6 +227,7 @@ public class LiveAuto extends JFrame {
 						String correctWord=obj.correct(word,O);
 						if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
 
+							System.out.println("Added----------");
 							ArrayList<String> cand = new ArrayList<String>(obj.candidates.values());
 							cand.add("Add to dictionary");
 							String allCandidates[] = new String[cand.size()];
@@ -251,7 +252,7 @@ public class LiveAuto extends JFrame {
 													System.out.println("tried to add="+wordAdd);
 													addToDict(wordAdd);
 												}
-												else
+										 		else
 												 area.setText(beforeWordText + wordSelected	+ afterWordText);
 												area.requestFocus();
 												area.setCaretPosition(caretPos);
@@ -869,8 +870,8 @@ public class LiveAuto extends JFrame {
 							if(word.length()>0)
 							{
 								word=Character.toUpperCase(word.charAt(0))+word.substring(1);
+								autoCap=true;
 							}
-							autoCap=true;
 						}
 						if(obj.nWords.containsKey(word.toLowerCase())&& !autoCap && spellSuggestion==false)
 						{
@@ -891,8 +892,8 @@ public class LiveAuto extends JFrame {
 									e1.printStackTrace();
 								}
 						// 	area.setText(remText + correctedWord );
-								if (obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
-									
+								if (!word.equalsIgnoreCase(correctedWord) && obj.candidates != null && obj.candidates.size() > 1) { // Concept to show candidate words as list
+									System.out.println("ITS COME HERE--- "+word+" "+correctedWord+(word.toLowerCase()==correctedWord.toLowerCase()));
 									int pos = area.getCaretPosition();
 									Point location; // location is collected to display the popup at that
 							// 	location
@@ -917,6 +918,10 @@ public class LiveAuto extends JFrame {
 										}
 									});
 								}
+								else
+								{
+									hidePopup();
+								}
 							}
 						}
 					}
@@ -932,7 +937,8 @@ public class LiveAuto extends JFrame {
 													// e.getKeyChar() == ';')
 			{
 				System.out.println("IN AUTOCOMPLETE");
-				tryToRecognize();
+				if(e.getKeyChar()=='.') tryToRecognize();
+				indicateErrors();
 				int caret = area.getCaretPosition() - 1;
 				String typed = area.getText();
 				String lastWord = "";
@@ -965,7 +971,7 @@ public class LiveAuto extends JFrame {
 
 	public void indicateErrors() 
 	{
-		if (O.underLineOn && !acsuggestion && CR.popupBeingShown==false) 
+		if (O.underLineOn && !acsuggestion)// && CR.popupBeingShown==false) 
 		{	
 			new UnderlineBkground(area, obj, separator).execute();	
 		}
