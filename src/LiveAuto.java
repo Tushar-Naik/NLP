@@ -937,7 +937,7 @@ public class LiveAuto extends JFrame {
 													// e.getKeyChar() == ';')
 			{
 				System.out.println("IN AUTOCOMPLETE");
-				if(e.getKeyChar()=='.') tryToRecognize();
+				if(e.getKeyChar()=='.'||e.getKeyChar()=='\n'||(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V)) tryToRecognize();
 				indicateErrors();
 				int caret = area.getCaretPosition() - 1;
 				String typed = area.getText();
